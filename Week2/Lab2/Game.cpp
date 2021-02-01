@@ -100,9 +100,84 @@ void Game::Render()
 	glBindVertexArray(m_uiVAO);
 	
 	// Set the modeling matrix
-	glm::mat4 mModelMatrix = glm::mat4(1);
-	m_pShaderProgram->SetUniform("modelMatrix", mModelMatrix);
-	m_pSphere->Render();
+	glutil::MatrixStack modelMatrixStack;
+	modelMatrixStack.SetIdentity();
+
+	float s = sin(m_rotY / 100.0f);
+
+	modelMatrixStack.Push(); {
+		modelMatrixStack.Translate(glm::vec3(5.f, 0.f, 0.f));
+		modelMatrixStack.Rotate(glm::vec3(0.f, 1.f, 0.f), m_rotY);
+		//modelMatrixStack.Scale(s);
+
+		modelMatrixStack.Push(); {
+			m_pShaderProgram->SetUniform("modelMatrix", modelMatrixStack.Top());
+			m_pSphere->Render();
+		} modelMatrixStack.Pop();
+
+		modelMatrixStack.Push(); {
+			modelMatrixStack.Translate(glm::vec3(-1.f, 1.f, 0.f));
+			m_pShaderProgram->SetUniform("modelMatrix", modelMatrixStack.Top());
+			m_pSphere->Render();
+		} modelMatrixStack.Pop();
+
+		modelMatrixStack.Push(); {
+			modelMatrixStack.Translate(glm::vec3(1.f, 1.f, 0.f));
+			m_pShaderProgram->SetUniform("modelMatrix", modelMatrixStack.Top());
+			m_pSphere->Render();
+		} modelMatrixStack.Pop();
+	}
+	modelMatrixStack.Pop();
+
+	modelMatrixStack.Push(); {
+		modelMatrixStack.Translate(glm::vec3(-5.f, 0.f, 0.f));
+		modelMatrixStack.Rotate(glm::vec3(0.f, 1.f, 0.f), m_rotY);
+		//modelMatrixStack.Scale(s);
+
+		modelMatrixStack.Push(); {
+			m_pShaderProgram->SetUniform("modelMatrix", modelMatrixStack.Top());
+			m_pSphere->Render();
+		} modelMatrixStack.Pop();
+
+		modelMatrixStack.Push(); {
+			modelMatrixStack.Translate(glm::vec3(-1.f, 1.f, 0.f));
+			m_pShaderProgram->SetUniform("modelMatrix", modelMatrixStack.Top());
+			m_pSphere->Render();
+		} modelMatrixStack.Pop();
+
+		modelMatrixStack.Push(); {
+			modelMatrixStack.Translate(glm::vec3(1.f, 1.f, 0.f));
+			m_pShaderProgram->SetUniform("modelMatrix", modelMatrixStack.Top());
+			m_pSphere->Render();
+		} modelMatrixStack.Pop();
+	}
+	modelMatrixStack.Pop();
+
+	// **Questioned myself why do the other 2 spheres rotate about the original sphere instead of having their own rotation, the reason is due to SoRT ordering issue.
+	// The following code gives the result I originally expected**	
+
+	/*glutil::MatrixStack modelMatrixStack;
+	modelMatrixStack.SetIdentity();
+
+	modelMatrixStack.Push(); {
+		modelMatrixStack.Rotate(glm::vec3(0.f, 1.f, 0.f), m_rotY);
+		m_pShaderProgram->SetUniform("modelMatrix", modelMatrixStack.Top());
+		m_pSphere->Render();
+	} modelMatrixStack.Pop();
+
+	modelMatrixStack.Push(); {
+		modelMatrixStack.Translate(glm::vec3(-1.f, 1.f, 0.f));
+		modelMatrixStack.Rotate(glm::vec3(0.f, 1.f, 0.f), m_rotY);
+		m_pShaderProgram->SetUniform("modelMatrix", modelMatrixStack.Top());
+		m_pSphere->Render();
+	} modelMatrixStack.Pop();
+
+	modelMatrixStack.Push(); {
+		modelMatrixStack.Translate(glm::vec3(1.f, 1.f, 0.f));
+		modelMatrixStack.Rotate(glm::vec3(0.f, 1.f, 0.f), m_rotY);
+		m_pShaderProgram->SetUniform("modelMatrix", modelMatrixStack.Top());
+		m_pSphere->Render();
+	} modelMatrixStack.Pop();*/
 
 
 
@@ -116,6 +191,7 @@ void Game::Render()
 // Update method runs repeatedly with the Render method
 void Game::Update() 
 {
+	m_rotY += 100.0f * m_dt;
 }
 		
 

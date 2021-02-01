@@ -1,0 +1,12 @@
+﻿  Game.cpp
+C:\Users\Huntees\Desktop\computer-graphics\Week2\Lab2\Game.cpp(317,18): warning C4244: 'return': conversion from 'WPARAM' to 'int', possible loss of data
+  GameWindow.cpp
+  HighResolutionTimer.cpp
+  MatrixStack.cpp
+  Shaders.cpp
+  Sphere.cpp
+C:\Users\Huntees\Desktop\computer-graphics\Week2\Lab2\Sphere.cpp(87,40): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+  Texture.cpp
+  VertexBufferObject.cpp
+  Generating Code...
+  Lab2.vcxproj -> C:\Users\Huntees\Desktop\computer-graphics\Week2\x64\Debug\Lab2.exe

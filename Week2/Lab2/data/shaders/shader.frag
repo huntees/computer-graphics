@@ -15,6 +15,8 @@ void main()
 {
 	// Read texel (pixel from image)
 	vec4 vTexColour = texture(sampler0, vTexCoord);	
+	if (vTexColour.r < fract(t/5))
+		discard;
 
 	// Some shading
 	float fAmbientIntensity = 0.15f;
