@@ -34,6 +34,7 @@ void Game::Initialise()
 	m_pViewMatrix = new glm::mat4(1);
 	m_pProjectionMatrix = new glm::mat4(1);
 
+	m_spacing = 0.5f;
 
 	GLuint uiVBO[2];	// Two vertex buffer objects
 
@@ -106,23 +107,35 @@ void Game::Initialise()
 // Render method runs repeatedly in a loop
 void Game::Render() 
 {
-
 	// Clear the buffer for rendering a new frame
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	DrawTriangleStack(glm::vec3(-5.f, 0.f, 0.f));
+	DrawTriangleStack(glm::vec3(0.f, 0.f, 0.f));
+	DrawTriangleStack(glm::vec3(5.f, 0.f, 0.f));
+
+	// Swap buffers to show the rendered image
+	SwapBuffers(gameWindow.Hdc());
+}
+
+void Game::DrawTriangle(glm::vec3 t) {
+
 	// Bind the VAO
 	glBindVertexArray(m_uiVAO);
-	
+
 	// Set the modeling matrix
-	*m_pModelMatrix = glm::translate(glm::mat4(1), glm::vec3(0, 0, 0));
+	*m_pModelMatrix = glm::translate(glm::mat4(1), t);
 	m_pShaderProgram->SetUniform("modelMatrix", m_pModelMatrix);
-	m_pShaderProgram->SetUniform("t", (float) m_pTimer->Elapsed());
+	m_pShaderProgram->SetUniform("t", (float)m_pTimer->Elapsed());
 
 	// Render the triangle consisting of 3 vertices
 	glDrawArrays(GL_TRIANGLES, 0, 3);
+}
 
-	// Swap buffers to show the rendered image
-	SwapBuffers(gameWindow.Hdc());		
+void Game::DrawTriangleStack(glm::vec3 s) {
+	for (int i = 0; i < 10; i++) {
+		DrawTriangle(s + glm::vec3(0.f, 0.f, i * m_spacing));
+	}
 }
 
 
@@ -185,6 +198,12 @@ LRESULT Game::ProcessEvents(HWND window,UINT message, WPARAM w_param, LPARAM l_p
 		switch(w_param) {
 		case VK_ESCAPE:
 			PostQuitMessage(0);
+			break;
+		case VK_UP:
+			m_spacing += 0.05f;
+			break;
+		case VK_DOWN:
+			m_spacing -= 0.05f;
 			break;
 		}
 		break;

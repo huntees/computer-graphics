@@ -21,6 +21,9 @@ private:
 	glm::mat4 *m_pProjectionMatrix;
 	GLuint m_uiVAO;	// A vertex array object (to wrap VBOs)
 
+	void DrawTriangle(glm::vec3 t);
+	void DrawTriangleStack(glm::vec3 s);
+
 public:
 	Game();
 	~Game();
@@ -33,5 +36,7 @@ private:
 	void GameLoop();
 	GameWindow gameWindow;
 	HINSTANCE hHinstance;
+
+	float m_spacing;
 
 };
