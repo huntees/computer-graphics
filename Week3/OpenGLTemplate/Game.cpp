@@ -37,6 +37,7 @@ Source code drawn from a number of sources and examples, including contributions
 #include "MatrixStack.h"
 #include "OpenAssetImportMesh.h"
 #include "Audio.h"
+#include "CatmullRom.h"
 
 // Constructor
 Game::Game()
@@ -51,6 +52,7 @@ Game::Game()
 	m_pSphere = NULL;
 	m_pHighResolutionTimer = NULL;
 	m_pAudio = NULL;
+	m_pCatmullRom = NULL;
 
 	m_dt = 0.0;
 	m_framesPerSecond = 0;
@@ -70,6 +72,7 @@ Game::~Game()
 	delete m_pHorseMesh;
 	delete m_pSphere;
 	delete m_pAudio;
+	delete m_pCatmullRom;
 
 	if (m_pShaderPrograms != NULL) {
 		for (unsigned int i = 0; i < m_pShaderPrograms->size(); i++)
@@ -98,6 +101,8 @@ void Game::Initialise()
 	m_pHorseMesh = new COpenAssetImportMesh;
 	m_pSphere = new CSphere;
 	m_pAudio = new CAudio;
+
+	m_pCatmullRom = new CCatmullRom;
 
 	RECT dimensions = m_gameWindow.GetDimensions();
 
@@ -169,7 +174,9 @@ void Game::Initialise()
 	m_pAudio->Initialise();
 	m_pAudio->LoadEventSound("resources\\Audio\\Boing.wav");					// Royalty free sound from freesound.org
 	m_pAudio->LoadMusicStream("resources\\Audio\\DST-Garote.mp3");	// Royalty free music from http://www.nosoapradio.us/
-	m_pAudio->PlayMusicStream();
+	//m_pAudio->PlayMusicStream();
+
+	m_pCatmullRom->CreatePath(p0, p1, p2, p3);
 }
 
 // Render method runs repeatedly in a loop
@@ -245,7 +252,25 @@ void Game::Render()
 	// Render the horse 
 	modelViewMatrixStack.Push();
 		modelViewMatrixStack.Translate(glm::vec3(0.0f, 0.0f, 0.0f));
-		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 180.0f);
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(180.0f));
+		modelViewMatrixStack.Scale(2.5f);
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pHorseMesh->Render();
+	modelViewMatrixStack.Pop();
+
+	modelViewMatrixStack.Push();
+		modelViewMatrixStack.Translate(glm::vec3(-30.0f, 0.0f, 30.0f));
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(180.0f));
+		modelViewMatrixStack.Scale(2.5f);
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pHorseMesh->Render();
+	modelViewMatrixStack.Pop();
+
+	modelViewMatrixStack.Push();
+		modelViewMatrixStack.Translate(glm::vec3(30.0f, 0.0f, -30.0f));
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(180.0f));
 		modelViewMatrixStack.Scale(2.5f);
 		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
@@ -255,25 +280,36 @@ void Game::Render()
 
 	
 	// Render the barrel 
-	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(glm::vec3(100.0f, 0.0f, 0.0f));
-		modelViewMatrixStack.Scale(5.0f);
-		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pBarrelMesh->Render();
-	modelViewMatrixStack.Pop();
+	for (int i = 0; i < 3; i++) {
+		modelViewMatrixStack.Push();
+			modelViewMatrixStack.Translate(glm::vec3(100.0f, 0.0f, 0.0f + (i * 5.f)));
+			modelViewMatrixStack.Scale(5.0f);
+			pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+			pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+			m_pBarrelMesh->Render();
+		modelViewMatrixStack.Pop();
+	}
 	
 
 	// Render the sphere
 	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(glm::vec3(0.0f, 2.0f, 150.0f));
-		modelViewMatrixStack.Scale(2.0f);
+		modelViewMatrixStack.Translate(glm::vec3(0.0f, 2.0f*3, 150.0f));
+		modelViewMatrixStack.Scale(2.0f*3);
 		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
 		// To turn off texture mapping and use the sphere colour only (currently white material), uncomment the next line
 		//pMainProgram->SetUniform("bUseTexture", false);
 		m_pSphere->Render();
 	modelViewMatrixStack.Pop();
+
+	modelViewMatrixStack.Push();
+		pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pCatmullRom->RenderPath();
+	modelViewMatrixStack.Pop();
+
+	
 		
 	// Draw the 2D graphics after the 3D graphics
 	DisplayFrameRate();
@@ -286,8 +322,17 @@ void Game::Render()
 // Update method runs repeatedly with the Render method
 void Game::Update() 
 {
+	//m_pCamera->Set(glm::vec3(0.0f, 300.0f, 0.f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
 	// Update the camera using the amount of time that has elapsed to avoid framerate dependent motion
 	m_pCamera->Update(m_dt);
+
+	/*static float t = 0.0f;
+	t += 0.0005f * (float)m_dt;
+	if (t > 1.0f)
+		t = 0.0f;
+
+	m_pCamera->Set(m_pCatmullRom->Interpolate(p0, p1, p2, p3, t), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));*/
 
 	m_pAudio->Update();
 }
