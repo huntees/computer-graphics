@@ -35,6 +35,7 @@ Source code drawn from a number of sources and examples, including contributions
 #include "OpenAssetImportMesh.h"
 #include "Audio.h"
 #include "Grid.h"
+#include <iostream>
 
 // Constructor
 Game::Game()
@@ -55,6 +56,8 @@ Game::Game()
 	m_framesPerSecond = 0;
 	m_frameCount = 0;
 	m_elapsedTime = 0.0f;
+	m_t = 0.f;
+	m_levels = 2;
 }
 
 // Destructor
@@ -180,7 +183,7 @@ void Game::Initialise()
 	m_pAudio->Initialise();
 	m_pAudio->LoadEventSound("Resources\\Audio\\Boing.wav");					// Royalty free sound from freesound.org
 	m_pAudio->LoadMusicStream("Resources\\Audio\\DST-Garote.mp3");	// Royalty free music from http://www.nosoapradio.us/
-	m_pAudio->PlayMusicStream();
+	//m_pAudio->PlayMusicStream();
 
 	// Create the grid
 	m_pGrid->Create(500, 500, 15);
@@ -251,6 +254,12 @@ void Game::Render()
 	pSphereProgram->SetUniform("light1.Ld", glm::vec3(1.0f, 1.0f, 1.0f));
 	pSphereProgram->SetUniform("light1.Ls", glm::vec3(1.0f, 1.0f, 1.0f));
 	pSphereProgram->SetUniform("light1.position", viewMatrix*lightPosition1);
+	pSphereProgram->SetUniform("t", m_t);
+	pSphereProgram->SetUniform("levels", m_levels);
+
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Render the sphere
 	modelViewMatrixStack.Push(); {
@@ -273,6 +282,8 @@ void Game::Render()
 // Update method runs repeatedly with the Render method
 void Game::Update() 
 {
+	m_t += (float)(0.01f * m_dt);
+
 	// Update the camera using the amount of time that has elapsed to avoid framerate dependent motion
 	m_pCamera->Update(m_dt);
 
@@ -313,6 +324,7 @@ void Game::DisplayFrameRate()
 		fontProgram->SetUniform("matrices.projMatrix", m_pCamera->GetOrthographicProjectionMatrix());
 		fontProgram->SetUniform("vColour", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 		m_pFtFont->Render(20, height - 20, 20, "FPS: %d", m_framesPerSecond);
+		m_pFtFont->Render(20, height - 50, 20, "Levels value: %d", m_levels);
 	}
 }
 
@@ -421,6 +433,19 @@ LRESULT Game::ProcessEvents(HWND window,UINT message, WPARAM w_param, LPARAM l_p
 		case VK_F1:
 			m_pAudio->PlayEventSound();
 			break;
+		case '0':
+			m_levels = m_levels + 1;
+			if (m_levels > 10) {
+				m_levels = 10;
+			}
+			break;
+		case '9':
+			m_levels = m_levels - 1;
+			if (m_levels < 2) {
+				m_levels = 2;
+			}
+			break;
+			
 		}
 		break;
 

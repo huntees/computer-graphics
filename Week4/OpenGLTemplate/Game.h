@@ -61,5 +61,8 @@ private:
 	int m_frameCount;
 	double m_elapsedTime;
 
+	float m_t;
+	int m_levels;
+
 
 };

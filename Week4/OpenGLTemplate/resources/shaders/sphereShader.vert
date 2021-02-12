@@ -35,6 +35,10 @@ layout (location = 2) in vec3 inNormal;
 
 out vec3 vColour;
 
+uniform float t;
+
+out float fIntensity;
+
 void main()
 {	
 
@@ -43,6 +47,10 @@ void main()
 	
 	// However in this lab we're going to play with the vertex position before this transformation
 	vec3 p = inPosition;
+	//p.y += sin(p.z + t);
+	//p.x += sin(p.y + t);
+	p.z += sin(p.x + t);
+
 
 	gl_Position = matrices.projMatrix * matrices.modelViewMatrix * vec4(p, 1.0);
 
@@ -66,6 +74,7 @@ void main()
 	
 	vColour = ambientColour + diffuseColour + specularColour;
 
-	
+	fIntensity = fDiffuseIntensity + fSpecularIntensity;
+
 	
 } 
