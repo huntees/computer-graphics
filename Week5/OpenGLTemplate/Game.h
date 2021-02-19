@@ -16,6 +16,7 @@ class CHighResolutionTimer;
 class CSphere;
 class COpenAssetImportMesh;
 class CAudio;
+class CCube;
 
 class Game {
 private:
@@ -32,9 +33,11 @@ private:
 	CFreeTypeFont *m_pFtFont;
 	COpenAssetImportMesh *m_pBarrelMesh;
 	COpenAssetImportMesh *m_pHorseMesh;
+	COpenAssetImportMesh *m_pFighterMesh;
 	CSphere *m_pSphere;
 	CHighResolutionTimer *m_pHighResolutionTimer;
 	CAudio *m_pAudio;
+	CCube* m_pCube;
 
 	// Some other member variables
 	double m_dt;
@@ -58,6 +61,11 @@ private:
 	HINSTANCE m_hInstance;
 	int m_frameCount;
 	double m_elapsedTime;
+
+	float m_t;
+	glm::vec3 m_spaceShipPosition;
+	glm::mat4 m_spaceShipOrientation;
+
 
 
 };

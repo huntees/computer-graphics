@@ -37,6 +37,7 @@ Source code drawn from a number of sources and examples, including contributions
 #include "MatrixStack.h"
 #include "OpenAssetImportMesh.h"
 #include "Audio.h"
+#include "Cube.h"
 
 // Constructor
 Game::Game()
@@ -48,9 +49,11 @@ Game::Game()
 	m_pFtFont = NULL;
 	m_pBarrelMesh = NULL;
 	m_pHorseMesh = NULL;
+	m_pFighterMesh = NULL;
 	m_pSphere = NULL;
 	m_pHighResolutionTimer = NULL;
 	m_pAudio = NULL;
+	m_pCube = NULL;
 
 	m_dt = 0.0;
 	m_framesPerSecond = 0;
@@ -68,8 +71,10 @@ Game::~Game()
 	delete m_pFtFont;
 	delete m_pBarrelMesh;
 	delete m_pHorseMesh;
+	delete m_pFighterMesh;
 	delete m_pSphere;
 	delete m_pAudio;
+	delete m_pCube;
 
 	if (m_pShaderPrograms != NULL) {
 		for (unsigned int i = 0; i < m_pShaderPrograms->size(); i++)
@@ -96,8 +101,14 @@ void Game::Initialise()
 	m_pFtFont = new CFreeTypeFont;
 	m_pBarrelMesh = new COpenAssetImportMesh;
 	m_pHorseMesh = new COpenAssetImportMesh;
+	m_pFighterMesh = new COpenAssetImportMesh;
 	m_pSphere = new CSphere;
 	m_pAudio = new CAudio;
+	m_pCube = new CCube;
+
+	m_t = 0;
+	m_spaceShipPosition = glm::vec3(0.f);
+	m_spaceShipOrientation = glm::mat4(1);
 
 	RECT dimensions = m_gameWindow.GetDimensions();
 
@@ -160,6 +171,8 @@ void Game::Initialise()
 	// Load some meshes in OBJ format
 	m_pBarrelMesh->Load("resources\\models\\Barrel\\Barrel02.obj");  // Downloaded from http://www.psionicgames.com/?page_id=24 on 24 Jan 2013
 	m_pHorseMesh->Load("resources\\models\\Horse\\Horse2.obj");  // Downloaded from http://opengameart.org/content/horse-lowpoly on 24 Jan 2013
+	m_pFighterMesh->Load("resources\\models\\Fighter\\fighter1.obj");
+
 
 	// Create a sphere
 	m_pSphere->Create("resources\\textures\\", "dirtpile01.jpg", 25, 25);  // Texture downloaded from http://www.psionicgames.com/?page_id=26 on 24 Jan 2013
@@ -169,7 +182,9 @@ void Game::Initialise()
 	m_pAudio->Initialise();
 	m_pAudio->LoadEventSound("resources\\Audio\\Boing.wav");					// Royalty free sound from freesound.org
 	m_pAudio->LoadMusicStream("resources\\Audio\\DST-Garote.mp3");	// Royalty free music from http://www.nosoapradio.us/
-	m_pAudio->PlayMusicStream();
+	//m_pAudio->PlayMusicStream();
+
+	m_pCube->Create("resources\\textures\\Tile41a.jpg");
 }
 
 // Render method runs repeatedly in a loop
@@ -245,11 +260,32 @@ void Game::Render()
 	// Render the horse 
 	modelViewMatrixStack.Push();
 		modelViewMatrixStack.Translate(glm::vec3(0.0f, 0.0f, 0.0f));
-		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 180.0f);
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(180.0f));
 		modelViewMatrixStack.Scale(2.5f);
 		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
 		m_pHorseMesh->Render();
+	modelViewMatrixStack.Pop();	
+	
+	// Render the fighter 
+	modelViewMatrixStack.Push();
+		modelViewMatrixStack.Translate(m_spaceShipPosition);
+		modelViewMatrixStack *= m_spaceShipOrientation;
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+		modelViewMatrixStack.Scale(1.f);
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pFighterMesh->Render();
+	modelViewMatrixStack.Pop();
+
+	// Render the cube 
+	modelViewMatrixStack.Push();
+		modelViewMatrixStack.Translate(glm::vec3(0.0f, 2.0f, 0.0f));
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(0.0f));
+		modelViewMatrixStack.Scale(2.f);
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pCube->Render();
 	modelViewMatrixStack.Pop();
 
 
@@ -290,6 +326,19 @@ void Game::Update()
 	m_pCamera->Update(m_dt);
 
 	m_pAudio->Update();
+
+	m_t += 0.001f * (float)m_dt;
+	float r = 75.0f;
+	glm::vec3 x = glm::vec3(1, 0, 0);
+	glm::vec3 y = glm::vec3(0, 1, 0);
+	glm::vec3 z = glm::vec3(0, 0, 1);
+	m_spaceShipPosition = r * cos(m_t) * x + 50.0f * y + r * sin(m_t) * z;
+
+	glm::vec3 T = glm::normalize(-r * sin(m_t) * x + r * cos(m_t) * z);
+	glm::vec3 N = glm::normalize(glm::cross(T, y));
+	glm::vec3 B = glm::normalize(glm::cross(N, T));
+	
+	m_spaceShipOrientation = glm::mat4(glm::mat3(T, B, N));
 }
 
 
