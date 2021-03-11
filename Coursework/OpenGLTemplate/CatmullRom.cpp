@@ -31,6 +31,14 @@ glm::vec3 CCatmullRom::Interpolate(glm::vec3& p0, glm::vec3& p1, glm::vec3& p2, 
 void CCatmullRom::SetControlPoints()
 {
 	// Set control points (m_controlPoints) here, or load from disk
+	m_controlPoints.push_back(glm::vec3(100, 5, 0));
+	m_controlPoints.push_back(glm::vec3(71, 5, 71));
+	m_controlPoints.push_back(glm::vec3(0, 5, 100));
+	m_controlPoints.push_back(glm::vec3(-71, 5, 71));
+	m_controlPoints.push_back(glm::vec3(-100, 5, 0));
+	m_controlPoints.push_back(glm::vec3(-71, 5, -71));
+	m_controlPoints.push_back(glm::vec3(0, 5, -100));
+	m_controlPoints.push_back(glm::vec3(71, 5, -71));
 
 	// Optionally, set upvectors (m_controlUpVectors, one for each control point as well)
 }
@@ -148,20 +156,140 @@ void CCatmullRom::UniformlySampleControlPoints(int numSamples)
 void CCatmullRom::CreateCentreline()
 {
 	// Call Set Control Points
+	SetControlPoints();
 
 	// Call UniformlySampleControlPoints with the number of samples required
+	UniformlySampleControlPoints(500);
 
 	// Create a VAO called m_vaoCentreline and a VBO to get the points onto the graphics card
+	glGenVertexArrays(1, &m_vaoCentreline);
+	glBindVertexArray(m_vaoCentreline);
+
+	// Create a VBO
+	CVertexBufferObject vbo;
+	vbo.Create();
+	vbo.Bind();
+
+	glm::vec2 texCoord(0.0f, 0.0f);
+	glm::vec3 normal(0.0f, 1.0f, 0.0f);
+	for (unsigned int i = 0; i < m_centrelinePoints.size(); i++) {
+
+		vbo.AddData(&m_centrelinePoints[i], sizeof(glm::vec3));
+		vbo.AddData(&texCoord, sizeof(glm::vec2));
+		vbo.AddData(&normal, sizeof(glm::vec3));
+	}
+
+	// Upload the VBO to the GPU
+	vbo.UploadDataToGPU(GL_STATIC_DRAW);
+
+	// Set the vertex attribute locations
+	GLsizei stride = 2 * sizeof(glm::vec3) + sizeof(glm::vec2);
+
+	// Vertex positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, 0);
+
+	// Texture coordinates
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(glm::vec3));
+
+	// Normal vectors
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(glm::vec3) + sizeof(glm::vec2)));
 }
 
 
-void CCatmullRom::CreateOffsetCurves()
+void CCatmullRom::CreateOffsetCurves(float width)
 {
 	// Compute the offset curves, one left, and one right.  Store the points in m_leftOffsetPoints and m_rightOffsetPoints respectively
+	for (int i = 0; i < m_centrelinePoints.size(); i++) {
+		glm::vec3 p = m_centrelinePoints[i];
+		glm::vec3 pNext = m_centrelinePoints[(i + 1) % m_centrelinePoints.size()];
+
+		glm::vec3 T = glm::normalize(pNext - p);
+		glm::vec3 N = glm::normalize(glm::cross(T, glm::vec3(0, 1, 0)));
+		glm::vec3 B = glm::normalize(glm::cross(N, T));
+
+		glm::vec3 l = p - (width / 2) * N;
+		glm::vec3 r = p + (width / 2) * N;
+		
+		m_leftOffsetPoints.push_back(l);
+		m_rightOffsetPoints.push_back(r);
+	}
 
 	// Generate two VAOs called m_vaoLeftOffsetCurve and m_vaoRightOffsetCurve, each with a VBO, and get the offset curve points on the graphics card
 	// Note it is possible to only use one VAO / VBO with all the points instead.
 
+
+	//---------------------------------Left Offset----------------------------------------
+	glGenVertexArrays(1, &m_vaoLeftOffsetCurve);
+	glBindVertexArray(m_vaoLeftOffsetCurve);
+
+	// Create a VBO
+	CVertexBufferObject vboLeftOffsetCurve;
+	vboLeftOffsetCurve.Create();
+	vboLeftOffsetCurve.Bind();
+
+	glm::vec2 texCoord(0.0f, 0.0f);
+	glm::vec3 normal(0.0f, 1.0f, 0.0f);
+	for (unsigned int i = 0; i < m_leftOffsetPoints.size(); i++) {
+
+		vboLeftOffsetCurve.AddData(&m_leftOffsetPoints[i], sizeof(glm::vec3));
+		vboLeftOffsetCurve.AddData(&texCoord, sizeof(glm::vec2));
+		vboLeftOffsetCurve.AddData(&normal, sizeof(glm::vec3));
+	}
+
+	// Upload the VBO to the GPU
+	vboLeftOffsetCurve.UploadDataToGPU(GL_STATIC_DRAW);
+
+	// Set the vertex attribute locations
+	GLsizei stride = 2 * sizeof(glm::vec3) + sizeof(glm::vec2);
+
+	// Vertex positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, 0);
+
+	// Texture coordinates
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(glm::vec3));
+
+	// Normal vectors
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(glm::vec3) + sizeof(glm::vec2)));
+
+	//---------------------------------Right Offset---------------------------------------
+	glGenVertexArrays(1, &m_vaoRightOffsetCurve);
+	glBindVertexArray(m_vaoRightOffsetCurve);
+
+	// Create a VBO
+	CVertexBufferObject vboRightOffsetCurve;
+	vboRightOffsetCurve.Create();
+	vboRightOffsetCurve.Bind();
+
+	for (unsigned int i = 0; i < m_rightOffsetPoints.size(); i++) {
+
+		vboRightOffsetCurve.AddData(&m_rightOffsetPoints[i], sizeof(glm::vec3));
+		vboRightOffsetCurve.AddData(&texCoord, sizeof(glm::vec2));
+		vboRightOffsetCurve.AddData(&normal, sizeof(glm::vec3));
+	}
+
+	// Upload the VBO to the GPU
+	vboRightOffsetCurve.UploadDataToGPU(GL_STATIC_DRAW);
+
+	// Set the vertex attribute locations
+	//GLsizei stride = 2 * sizeof(glm::vec3) + sizeof(glm::vec2);
+
+	// Vertex positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, 0);
+
+	// Texture coordinates
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(glm::vec3));
+
+	// Normal vectors
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(glm::vec3) + sizeof(glm::vec2)));
 
 }
 
@@ -171,26 +299,86 @@ void CCatmullRom::CreateTrack()
 
 	// Generate a VAO called m_vaoTrack and a VBO to get the offset curve points and indices on the graphics card
 
+	glGenVertexArrays(1, &m_vaoTrack);
+	glBindVertexArray(m_vaoTrack);
+
+	// Create a VBO
+	CVertexBufferObject vbo;
+	vbo.Create();
+	vbo.Bind();
+
+	glm::vec2 texCoord(0.0f, 0.0f);
+	glm::vec3 normal(0.0f, 1.0f, 0.0f);
+	for (unsigned int i = 0; i < m_leftOffsetPoints.size() + 1; i++) {
+
+		vbo.AddData(&m_leftOffsetPoints[i % m_leftOffsetPoints.size()], sizeof(glm::vec3));
+		vbo.AddData(&texCoord, sizeof(glm::vec2));
+		vbo.AddData(&normal, sizeof(glm::vec3));
+
+		vbo.AddData(&m_rightOffsetPoints[i % m_leftOffsetPoints.size()], sizeof(glm::vec3));
+		vbo.AddData(&texCoord, sizeof(glm::vec2));
+		vbo.AddData(&normal, sizeof(glm::vec3));
+
+		m_vertexCount += 2;
+	}
+
+	// Upload the VBO to the GPU
+	vbo.UploadDataToGPU(GL_STATIC_DRAW);
+
+	// Set the vertex attribute locations
+	GLsizei stride = 2 * sizeof(glm::vec3) + sizeof(glm::vec2);
+
+	// Vertex positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, 0);
+
+	// Texture coordinates
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(glm::vec3));
+
+	// Normal vectors
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(glm::vec3) + sizeof(glm::vec2)));
 }
 
 
 void CCatmullRom::RenderCentreline()
 {
-	// Bind the VAO m_vaoCentreline and render it
+	glLineWidth(2.0f);
+	glPointSize(5.0f);
 
+	// Bind the VAO m_vaoCentreline and render it
+	glBindVertexArray(m_vaoCentreline);
+	glDrawArrays(GL_POINTS, 0, m_centrelinePoints.size());
+	glDrawArrays(GL_LINE_LOOP, 0, m_centrelinePoints.size());
 }
 
 void CCatmullRom::RenderOffsetCurves()
 {
+	glLineWidth(2.0f);
+	glPointSize(5.0f);
+
 	// Bind the VAO m_vaoLeftOffsetCurve and render it
+	glBindVertexArray(m_vaoLeftOffsetCurve);
+	glDrawArrays(GL_POINTS, 0, m_leftOffsetPoints.size());
+	glDrawArrays(GL_LINE_LOOP, 0, m_leftOffsetPoints.size());
 
 	// Bind the VAO m_vaoRightOffsetCurve and render it
+	glBindVertexArray(m_vaoRightOffsetCurve);
+	glDrawArrays(GL_POINTS, 0, m_rightOffsetPoints.size());
+	glDrawArrays(GL_LINE_LOOP, 0, m_rightOffsetPoints.size());
 }
 
 
 void CCatmullRom::RenderTrack()
 {
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 	// Bind the VAO m_vaoTrack and render it
+	glBindVertexArray(m_vaoTrack);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, m_vertexCount);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 int CCatmullRom::CurrentLap(float d)

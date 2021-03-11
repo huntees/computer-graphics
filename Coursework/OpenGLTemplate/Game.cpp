@@ -61,6 +61,10 @@ Game::Game()
 	m_framesPerSecond = 0;
 	m_frameCount = 0;
 	m_elapsedTime = 0.0f;
+
+	m_currentDistance = 0.0f;
+	m_cameraSpeed = 0.0f;
+	m_cameraSpeed = 0.0f;
 }
 
 // Destructor
@@ -113,6 +117,10 @@ void Game::Initialise()
 	m_t = 0;
 	m_spaceShipPosition = glm::vec3(0.f);
 	m_spaceShipOrientation = glm::mat4(1);
+
+	m_currentDistance = 0.0f;
+	m_cameraSpeed = 0.0f;
+	m_cameraSpeed = 0.0f;
 
 	RECT dimensions = m_gameWindow.GetDimensions();
 
@@ -190,7 +198,9 @@ void Game::Initialise()
 
 	m_pCube->Create("resources\\textures\\Tile41a.jpg");
 
-	m_pCatmullRom->CreatePath(p0, p1, p2, p3);
+	m_pCatmullRom->CreateCentreline();
+	m_pCatmullRom->CreateOffsetCurves(20.f);
+	m_pCatmullRom->CreateTrack();
 }
 
 // Render method runs repeatedly in a loop
@@ -322,7 +332,23 @@ void Game::Render()
 	pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
 	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-	m_pCatmullRom->RenderPath();
+	m_pCatmullRom->RenderCentreline();
+	modelViewMatrixStack.Pop();	
+	
+	// Render Catmull Spline Route offsets
+	modelViewMatrixStack.Push();
+	pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
+	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pCatmullRom->RenderOffsetCurves();
+	modelViewMatrixStack.Pop();
+
+	// Render Catmull Spline Route Track
+	modelViewMatrixStack.Push();
+	pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
+	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pCatmullRom->RenderTrack();
 	modelViewMatrixStack.Pop();
 		
 	// Draw the 2D graphics after the 3D graphics
@@ -339,16 +365,28 @@ void Game::Update()
 	// Update the camera using the amount of time that has elapsed to avoid framerate dependent motion
 	m_pCamera->Update(m_dt);
 
-	//static float t = 0.0f;
-	//t += 0.0005f * (float)m_dt;
+	m_currentDistance += m_cameraSpeed * m_dt;
 
-	//if (t > 1.0f) {
-	//	t = 0.0f;
-	//}
+	glm::vec3 p;
+	m_pCatmullRom->Sample(m_currentDistance, p);
 
-	//m_pCamera->Set(m_pCatmullRom->Interpolate(p0, p1, p2, p3, t), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::vec3 pNext;
+	m_pCatmullRom->Sample(m_currentDistance + 1.0f, pNext);
+
+	glm::vec3 cam_T = glm::normalize(pNext - p);
+	glm::vec3 cam_N = glm::normalize(glm::cross(cam_T, glm::vec3(0, 1, 0)));
+	glm::vec3 cam_B = glm::normalize(glm::cross(cam_N, cam_T));
+
+	glm::vec3 up = glm::rotate(glm::vec3(0, 1, 0), m_cameraRotation, cam_T);
+
+
+	m_pCamera->Set(p + (5.f * cam_B) , p + (10.0f * cam_T), up);
+
+
 
 	m_pAudio->Update();
+
+
 
 	m_t += 0.001f * (float)m_dt;
 	float r = 75.0f;
@@ -505,6 +543,18 @@ LRESULT Game::ProcessEvents(HWND window,UINT message, WPARAM w_param, LPARAM l_p
 			break;
 		case VK_F1:
 			m_pAudio->PlayEventSound();
+			break;
+		case VK_UP:
+			m_cameraSpeed += 0.01f;
+			break;
+		case VK_DOWN:
+			m_cameraSpeed -= 0.01f;
+			break;
+		case VK_RIGHT:
+			m_cameraRotation += 0.01f * m_dt;
+			break;
+		case VK_LEFT:
+			m_cameraRotation -= 0.01f * m_dt;
 			break;
 		}
 		break;

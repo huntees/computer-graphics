@@ -73,6 +73,11 @@ private:
 	glm::vec3 m_spaceShipPosition;
 	glm::mat4 m_spaceShipOrientation;
 
+	float m_currentDistance;
+	float m_cameraSpeed;
+
+	float m_cameraRotation;
+
 
 
 };
