@@ -17,6 +17,7 @@ class CSphere;
 class COpenAssetImportMesh;
 class CAudio;
 class CCube;
+class CCatmullRom;
 
 class Game {
 private:
@@ -38,11 +39,17 @@ private:
 	CHighResolutionTimer *m_pHighResolutionTimer;
 	CAudio *m_pAudio;
 	CCube* m_pCube;
+	CCatmullRom* m_pCatmullRom;
 
 	// Some other member variables
 	double m_dt;
 	int m_framesPerSecond;
 	bool m_appActive;
+
+	glm::vec3 p0 = glm::vec3(-500, 10, -200);
+	glm::vec3 p1 = glm::vec3(0, 10, -200);
+	glm::vec3 p2 = glm::vec3(0, 10, 200);
+	glm::vec3 p3 = glm::vec3(-500, 10, 200);
 
 
 public:
