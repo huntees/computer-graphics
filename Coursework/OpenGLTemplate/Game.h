@@ -40,6 +40,7 @@ private:
 	CAudio *m_pAudio;
 	CCube* m_pCube;
 	CCatmullRom* m_pCatmullRom;
+	COpenAssetImportMesh* m_pCity;
 
 	// Some other member variables
 	double m_dt;
@@ -77,6 +78,7 @@ private:
 	float m_cameraSpeed;
 
 	float m_cameraRotation;
+	bool m_onRail;
 
 
 

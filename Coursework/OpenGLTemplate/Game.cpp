@@ -56,6 +56,7 @@ Game::Game()
 	m_pAudio = NULL;
 	m_pCube = NULL;
 	m_pCatmullRom = NULL;
+	m_pCity = NULL;
 
 	m_dt = 0.0;
 	m_framesPerSecond = 0;
@@ -65,6 +66,7 @@ Game::Game()
 	m_currentDistance = 0.0f;
 	m_cameraSpeed = 0.0f;
 	m_cameraSpeed = 0.0f;
+	m_onRail = false;
 }
 
 // Destructor
@@ -81,6 +83,7 @@ Game::~Game()
 	delete m_pSphere;
 	delete m_pAudio;
 	delete m_pCube;
+	delete m_pCity;
 
 	if (m_pShaderPrograms != NULL) {
 		for (unsigned int i = 0; i < m_pShaderPrograms->size(); i++)
@@ -111,6 +114,8 @@ void Game::Initialise()
 	m_pSphere = new CSphere;
 	m_pAudio = new CAudio;
 
+	m_pCity = new COpenAssetImportMesh;
+
 	m_pCube = new CCube;
 	m_pCatmullRom = new CCatmullRom;
 
@@ -120,7 +125,7 @@ void Game::Initialise()
 
 	m_currentDistance = 0.0f;
 	m_cameraSpeed = 0.0f;
-	m_cameraSpeed = 0.0f;
+	m_onRail = false;
 
 	RECT dimensions = m_gameWindow.GetDimensions();
 
@@ -184,6 +189,7 @@ void Game::Initialise()
 	m_pBarrelMesh->Load("resources\\models\\Barrel\\Barrel02.obj");  // Downloaded from http://www.psionicgames.com/?page_id=24 on 24 Jan 2013
 	m_pHorseMesh->Load("resources\\models\\Horse\\Horse2.obj");  // Downloaded from http://opengameart.org/content/horse-lowpoly on 24 Jan 2013
 	m_pFighterMesh->Load("resources\\models\\Fighter\\fighter1.obj");
+	m_pCity->Load("resources\\models\\City\\City.obj");
 
 
 	// Create a sphere
@@ -294,6 +300,16 @@ void Game::Render()
 		m_pFighterMesh->Render();
 	modelViewMatrixStack.Pop();
 
+	// Render the City 
+	modelViewMatrixStack.Push();
+	modelViewMatrixStack.Translate(glm::vec3(0.0f, 0.0f, 0.0f));
+	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+	modelViewMatrixStack.Scale(1.f);
+	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pCity->Render();
+	modelViewMatrixStack.Pop();
+
 	// Render the cube 
 	modelViewMatrixStack.Push();
 		modelViewMatrixStack.Translate(glm::vec3(0.0f, 2.0f, 0.0f));
@@ -379,8 +395,9 @@ void Game::Update()
 
 	glm::vec3 up = glm::rotate(glm::vec3(0, 1, 0), m_cameraRotation, cam_T);
 
-
-	m_pCamera->Set(p + (5.f * cam_B) , p + (10.0f * cam_T), up);
+	if (m_onRail) {
+		m_pCamera->Set(p + (5.f * cam_B), p + (500.0f * cam_T), up);
+	}
 
 
 
@@ -555,6 +572,10 @@ LRESULT Game::ProcessEvents(HWND window,UINT message, WPARAM w_param, LPARAM l_p
 			break;
 		case VK_LEFT:
 			m_cameraRotation -= 0.01f * m_dt;
+			break;
+			break;
+		case VK_NUMPAD0:
+			m_onRail = !m_onRail;
 			break;
 		}
 		break;

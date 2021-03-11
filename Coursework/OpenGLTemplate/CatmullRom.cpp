@@ -31,14 +31,14 @@ glm::vec3 CCatmullRom::Interpolate(glm::vec3& p0, glm::vec3& p1, glm::vec3& p2, 
 void CCatmullRom::SetControlPoints()
 {
 	// Set control points (m_controlPoints) here, or load from disk
-	m_controlPoints.push_back(glm::vec3(100, 5, 0));
-	m_controlPoints.push_back(glm::vec3(71, 5, 71));
-	m_controlPoints.push_back(glm::vec3(0, 5, 100));
-	m_controlPoints.push_back(glm::vec3(-71, 5, 71));
-	m_controlPoints.push_back(glm::vec3(-100, 5, 0));
-	m_controlPoints.push_back(glm::vec3(-71, 5, -71));
-	m_controlPoints.push_back(glm::vec3(0, 5, -100));
-	m_controlPoints.push_back(glm::vec3(71, 5, -71));
+	m_controlPoints.push_back(glm::vec3(100 + 300, 200, 0));
+	m_controlPoints.push_back(glm::vec3(71 + 300, 200, 71));
+	m_controlPoints.push_back(glm::vec3(0 + 300, 200, 100));
+	m_controlPoints.push_back(glm::vec3(-71 + 300, 200, 71));
+	m_controlPoints.push_back(glm::vec3(-100 + 300, 200, 0));
+	m_controlPoints.push_back(glm::vec3(-71 + 300, 200, -71 - 300));
+	m_controlPoints.push_back(glm::vec3(0 + 300, 200, -100 - 300));
+	m_controlPoints.push_back(glm::vec3(71 + 300, 200, -71 - 300));
 
 	// Optionally, set upvectors (m_controlUpVectors, one for each control point as well)
 }
