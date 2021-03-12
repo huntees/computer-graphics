@@ -31,16 +31,108 @@ glm::vec3 CCatmullRom::Interpolate(glm::vec3& p0, glm::vec3& p1, glm::vec3& p2, 
 void CCatmullRom::SetControlPoints()
 {
 	// Set control points (m_controlPoints) here, or load from disk
-	m_controlPoints.push_back(glm::vec3(100 + 300, 200, 0));
-	m_controlPoints.push_back(glm::vec3(71 + 300, 200, 71));
-	m_controlPoints.push_back(glm::vec3(0 + 300, 200, 100));
-	m_controlPoints.push_back(glm::vec3(-71 + 300, 200, 71));
-	m_controlPoints.push_back(glm::vec3(-100 + 300, 200, 0));
-	m_controlPoints.push_back(glm::vec3(-71 + 300, 200, -71 - 300));
-	m_controlPoints.push_back(glm::vec3(0 + 300, 200, -100 - 300));
-	m_controlPoints.push_back(glm::vec3(71 + 300, 200, -71 - 300));
+	//m_controlPoints.push_back(glm::vec3(100 + 300, 200, 0));
+	//m_controlPoints.push_back(glm::vec3(71 + 300, 200, 71));
+	//m_controlPoints.push_back(glm::vec3(0 + 300, 200, 100));
+	//m_controlPoints.push_back(glm::vec3(-71 + 300, 200, 71));
+	//m_controlPoints.push_back(glm::vec3(-100 + 300, 200, 0));
+	//m_controlPoints.push_back(glm::vec3(-71 + 300, 200, -71 - 300));
+	//m_controlPoints.push_back(glm::vec3(0 + 300, 200, -100 - 300));
+	//m_controlPoints.push_back(glm::vec3(71 + 300, 200, -71 - 300));
+	m_controlPoints.push_back(glm::vec3(483, 420, 1992));
+	m_controlPoints.push_back(glm::vec3(420, 360, 1803));
+	m_controlPoints.push_back(glm::vec3(336, 300, 1585));
+	m_controlPoints.push_back(glm::vec3(230, 280, 1430));
+	m_controlPoints.push_back(glm::vec3(-2, 270, 1193));
+	m_controlPoints.push_back(glm::vec3(-250, 229, 1057));
+	m_controlPoints.push_back(glm::vec3(-400, 200, 1000));
+	m_controlPoints.push_back(glm::vec3(-642, 160, 841));
+	m_controlPoints.push_back(glm::vec3(-838, 150, 677));
+	m_controlPoints.push_back(glm::vec3(-960, 160, 510));
+	m_controlPoints.push_back(glm::vec3(-1059, 170, 416));
+	m_controlPoints.push_back(glm::vec3(-1186, 186, 301));
+	m_controlPoints.push_back(glm::vec3(-1156, 190, 217));
+	m_controlPoints.push_back(glm::vec3(-1110, 191, 94));
+	m_controlPoints.push_back(glm::vec3(-1047, 202, -3));
+	m_controlPoints.push_back(glm::vec3(-889, 212, -57));
+	m_controlPoints.push_back(glm::vec3(-780, 224, -77));
+	m_controlPoints.push_back(glm::vec3(-675, 235, -84));
+	m_controlPoints.push_back(glm::vec3(-578, 245, -118));
+	m_controlPoints.push_back(glm::vec3(-512, 253, -182));
+	m_controlPoints.push_back(glm::vec3(-530, 260, -307));
+	m_controlPoints.push_back(glm::vec3(-623, 238, -408));
+	m_controlPoints.push_back(glm::vec3(-680, 207, -487));
+	m_controlPoints.push_back(glm::vec3(-704, 195, -523));
+	m_controlPoints.push_back(glm::vec3(-726, 189, -566));
+	m_controlPoints.push_back(glm::vec3(-693, 170, -619));
+	m_controlPoints.push_back(glm::vec3(-574, 140, -709)); //-13 -22
+	m_controlPoints.push_back(glm::vec3(-439, 117, -768));
+	m_controlPoints.push_back(glm::vec3(-346, 92, -809));
+	m_controlPoints.push_back(glm::vec3(-268, 70, -824)); 
+	m_controlPoints.push_back(glm::vec3(-210, 65, -836));
+	m_controlPoints.push_back(glm::vec3(-100, 65, -870));
+	m_controlPoints.push_back(glm::vec3(66, 65, -890));
+	m_controlPoints.push_back(glm::vec3(300, 65, -979));
+	m_controlPoints.push_back(glm::vec3(451, 82, -1025));
+
+	//m_controlPoints.push_back(glm::vec3(480, 96, -1039));
+	//m_controlPoints.push_back(glm::vec3(552, 100, -1069));
+	//m_controlPoints.push_back(glm::vec3(604, 100, -1080));
+	//m_controlPoints.push_back(glm::vec3(701, 105, -1100));
+
+	m_controlPoints.push_back(glm::vec3(553, 96, -1061));
+	m_controlPoints.push_back(glm::vec3(662, 100, -1093));
+	m_controlPoints.push_back(glm::vec3(754, 100, -1121));
+	m_controlPoints.push_back(glm::vec3(838, 105, -1144));
+	m_controlPoints.push_back(glm::vec3(927, 105, -1158));
+	m_controlPoints.push_back(glm::vec3(645, 435, 2280));
+
 
 	// Optionally, set upvectors (m_controlUpVectors, one for each control point as well)
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(-1, 0, 0));
+	m_controlUpVectors.push_back(glm::vec3(-1, 0, 0));
+	m_controlUpVectors.push_back(glm::vec3(-1, 0, 0));
+	m_controlUpVectors.push_back(glm::vec3(-1, 0, 0));
+	m_controlUpVectors.push_back(glm::vec3(-0.5, 0, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+
+
+
 }
 
 
@@ -204,10 +296,12 @@ void CCatmullRom::CreateOffsetCurves(float width)
 	// Compute the offset curves, one left, and one right.  Store the points in m_leftOffsetPoints and m_rightOffsetPoints respectively
 	for (int i = 0; i < m_centrelinePoints.size(); i++) {
 		glm::vec3 p = m_centrelinePoints[i];
+		glm::vec3 p_y = m_centrelineUpVectors[i];
+
 		glm::vec3 pNext = m_centrelinePoints[(i + 1) % m_centrelinePoints.size()];
 
 		glm::vec3 T = glm::normalize(pNext - p);
-		glm::vec3 N = glm::normalize(glm::cross(T, glm::vec3(0, 1, 0)));
+		glm::vec3 N = glm::normalize(glm::cross(T, p_y));
 		glm::vec3 B = glm::normalize(glm::cross(N, T));
 
 		glm::vec3 l = p - (width / 2) * N;

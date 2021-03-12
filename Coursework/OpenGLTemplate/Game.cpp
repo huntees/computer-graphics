@@ -57,6 +57,12 @@ Game::Game()
 	m_pCube = NULL;
 	m_pCatmullRom = NULL;
 	m_pCity = NULL;
+	m_pCenterCity = NULL;
+	m_pDowntown = NULL;
+	
+	m_pStarship = NULL;
+
+	m_pMan = NULL;
 
 	m_dt = 0.0;
 	m_framesPerSecond = 0;
@@ -66,7 +72,9 @@ Game::Game()
 	m_currentDistance = 0.0f;
 	m_cameraSpeed = 0.0f;
 	m_cameraSpeed = 0.0f;
-	m_onRail = false;
+
+	m_cameraMode = 3;
+	m_freeview = false;
 }
 
 // Destructor
@@ -115,6 +123,12 @@ void Game::Initialise()
 	m_pAudio = new CAudio;
 
 	m_pCity = new COpenAssetImportMesh;
+	m_pCenterCity = new COpenAssetImportMesh;
+	m_pDowntown = new COpenAssetImportMesh;
+
+	m_pStarship = new COpenAssetImportMesh;
+
+	m_pMan = new COpenAssetImportMesh;
 
 	m_pCube = new CCube;
 	m_pCatmullRom = new CCatmullRom;
@@ -125,7 +139,12 @@ void Game::Initialise()
 
 	m_currentDistance = 0.0f;
 	m_cameraSpeed = 0.0f;
-	m_onRail = false;
+
+	m_cameraMode = 3;
+	m_freeview = false;
+
+	m_starShipPosition = glm::vec3(0.f);
+	m_starShipOrientation = glm::mat4(1);
 
 	RECT dimensions = m_gameWindow.GetDimensions();
 
@@ -190,6 +209,12 @@ void Game::Initialise()
 	m_pHorseMesh->Load("resources\\models\\Horse\\Horse2.obj");  // Downloaded from http://opengameart.org/content/horse-lowpoly on 24 Jan 2013
 	m_pFighterMesh->Load("resources\\models\\Fighter\\fighter1.obj");
 	m_pCity->Load("resources\\models\\City\\City.obj");
+	m_pCenterCity->Load("resources\\models\\CenterCity\\CenterCity.obj");
+	m_pDowntown->Load("resources\\models\\Downtown\\downtown.obj");
+
+	m_pStarship->Load("resources\\models\\Starship\\Starship.obj");
+
+	m_pMan->Load("resources\\models\\Man\\man.obj");
 
 
 	// Create a sphere
@@ -205,7 +230,7 @@ void Game::Initialise()
 	m_pCube->Create("resources\\textures\\Tile41a.jpg");
 
 	m_pCatmullRom->CreateCentreline();
-	m_pCatmullRom->CreateOffsetCurves(20.f);
+	m_pCatmullRom->CreateOffsetCurves(70.f);
 	m_pCatmullRom->CreateTrack();
 }
 
@@ -244,9 +269,9 @@ void Game::Render()
 	// Set light and materials in main shader program
 	glm::vec4 lightPosition1 = glm::vec4(-100, 100, -100, 1); // Position of light source *in world coordinates*
 	pMainProgram->SetUniform("light1.position", viewMatrix*lightPosition1); // Position of light source *in eye coordinates*
-	pMainProgram->SetUniform("light1.La", glm::vec3(1.0f));		// Ambient colour of light
-	pMainProgram->SetUniform("light1.Ld", glm::vec3(1.0f));		// Diffuse colour of light
-	pMainProgram->SetUniform("light1.Ls", glm::vec3(1.0f));		// Specular colour of light
+	pMainProgram->SetUniform("light1.La", glm::vec3(0.8f));		// Ambient colour of light
+	pMainProgram->SetUniform("light1.Ld", glm::vec3(0.8f));		// Diffuse colour of light
+	pMainProgram->SetUniform("light1.Ls", glm::vec3(0.8f));		// Specular colour of light
 	pMainProgram->SetUniform("material1.Ma", glm::vec3(1.0f));	// Ambient material reflectance
 	pMainProgram->SetUniform("material1.Md", glm::vec3(0.0f));	// Diffuse material reflectance
 	pMainProgram->SetUniform("material1.Ms", glm::vec3(0.0f));	// Specular material reflectance
@@ -302,12 +327,53 @@ void Game::Render()
 
 	// Render the City 
 	modelViewMatrixStack.Push();
-	modelViewMatrixStack.Translate(glm::vec3(0.0f, 0.0f, 0.0f));
-	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
-	modelViewMatrixStack.Scale(1.f);
-	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-	m_pCity->Render();
+		modelViewMatrixStack.Translate(glm::vec3(0.0f, 0.0f, 0.0f));
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+		modelViewMatrixStack.Scale(1.f);
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pCity->Render();
+	modelViewMatrixStack.Pop();
+
+	// Render the Center City 
+	modelViewMatrixStack.Push();
+		modelViewMatrixStack.Translate(glm::vec3(1050.0f, -54.f, -450.0f));
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(60.f));
+		modelViewMatrixStack.Scale(1.2f, 2.5f, 1.2f);
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pCenterCity->Render();
+	modelViewMatrixStack.Pop();	
+
+	// Render the Downtown 
+	modelViewMatrixStack.Push();
+		modelViewMatrixStack.Translate(glm::vec3(120.f, 0.f, 290.0f));
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(10.f));
+		modelViewMatrixStack.Scale(1.7f, 3.5f, 1.7f);
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pDowntown->Render();
+	modelViewMatrixStack.Pop();	
+	
+	// Render the Starship 
+	modelViewMatrixStack.Push();
+		modelViewMatrixStack.Translate(m_starShipPosition);
+		modelViewMatrixStack *= m_starShipOrientation;
+		modelViewMatrixStack.Scale(1.f);
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pStarship->Render();
+	modelViewMatrixStack.Pop();
+	
+	// Render the Man
+	modelViewMatrixStack.Push();
+		modelViewMatrixStack.Translate(glm::vec3(11.0f, 56.f, -840.0f));
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(0.f));
+		modelViewMatrixStack.Scale(0.55f);
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pMan->Render();
 	modelViewMatrixStack.Pop();
 
 	// Render the cube 
@@ -384,21 +450,32 @@ void Game::Update()
 	m_currentDistance += m_cameraSpeed * m_dt;
 
 	glm::vec3 p;
-	m_pCatmullRom->Sample(m_currentDistance, p);
+	glm::vec3 p_y;
+	m_pCatmullRom->Sample(m_currentDistance, p, p_y);
 
 	glm::vec3 pNext;
 	m_pCatmullRom->Sample(m_currentDistance + 1.0f, pNext);
 
-	glm::vec3 cam_T = glm::normalize(pNext - p);
-	glm::vec3 cam_N = glm::normalize(glm::cross(cam_T, glm::vec3(0, 1, 0)));
-	glm::vec3 cam_B = glm::normalize(glm::cross(cam_N, cam_T));
+	glm::vec3 cam_T = glm::normalize(pNext - p); //(z axis)
+	glm::vec3 cam_N = glm::normalize(glm::cross(cam_T, p_y)); //(x axis)
+	glm::vec3 cam_B = glm::normalize(glm::cross(cam_N, cam_T)); //(y axis)
 
 	glm::vec3 up = glm::rotate(glm::vec3(0, 1, 0), m_cameraRotation, cam_T);
 
-	if (m_onRail) {
-		m_pCamera->Set(p + (5.f * cam_B), p + (500.0f * cam_T), up);
+	if (!m_freeview) {
+		if (m_cameraMode == 1) {
+			m_pCamera->Set(p + (5.f * cam_B) + (4.f * cam_T), p + (500.0f * cam_T), p_y);
+		}
+		else if (m_cameraMode == 2) {
+			m_pCamera->Set(p + (5.f * cam_B) + (1.5f * cam_T), p + (500.0f * cam_T), p_y);
+		}
+		else if (m_cameraMode == 3) {
+			m_pCamera->Set(p + (13.f * cam_B) + (-30.f * cam_T), p + (200.0f * cam_T), p_y);
+		}
 	}
 
+	m_starShipPosition = p + (2.9f * cam_B);
+	m_starShipOrientation = glm::mat4(glm::mat3(cam_T, cam_B, cam_N));
 
 
 	m_pAudio->Update();
@@ -453,6 +530,9 @@ void Game::DisplayFrameRate()
 		fontProgram->SetUniform("matrices.projMatrix", m_pCamera->GetOrthographicProjectionMatrix());
 		fontProgram->SetUniform("vColour", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
 		m_pFtFont->Render(20, height - 20, 20, "FPS: %d", m_framesPerSecond);
+		m_pFtFont->Render(20, height - 40, 20, "X: %f", m_pCamera->GetPosition().x);
+		m_pFtFont->Render(20, height - 60, 20, "Y: %f", m_pCamera->GetPosition().y);
+		m_pFtFont->Render(20, height - 80, 20, "Z: %f", m_pCamera->GetPosition().z);
 	}
 }
 
@@ -574,8 +654,14 @@ LRESULT Game::ProcessEvents(HWND window,UINT message, WPARAM w_param, LPARAM l_p
 			m_cameraRotation -= 0.01f * m_dt;
 			break;
 			break;
-		case VK_NUMPAD0:
-			m_onRail = !m_onRail;
+		case 'F':
+			m_freeview = !m_freeview;
+			break;
+		case 'C':
+			m_cameraMode++;
+			if (m_cameraMode > 3) {
+				m_cameraMode = 1;
+			}
 			break;
 		}
 		break;

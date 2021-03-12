@@ -41,6 +41,13 @@ private:
 	CCube* m_pCube;
 	CCatmullRom* m_pCatmullRom;
 	COpenAssetImportMesh* m_pCity;
+	COpenAssetImportMesh* m_pCenterCity;
+	COpenAssetImportMesh* m_pDowntown;
+
+	COpenAssetImportMesh* m_pStarship;
+
+
+	COpenAssetImportMesh* m_pMan;
 
 	// Some other member variables
 	double m_dt;
@@ -78,8 +85,11 @@ private:
 	float m_cameraSpeed;
 
 	float m_cameraRotation;
-	bool m_onRail;
 
+	glm::vec3 m_starShipPosition;
+	glm::mat4 m_starShipOrientation;
 
+	int m_cameraMode;
+	bool m_freeview;
 
 };

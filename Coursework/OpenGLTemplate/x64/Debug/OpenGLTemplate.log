@@ -1,6 +1,8 @@
-﻿  Game.cpp
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(384,43): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(571,36): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(574,36): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(617,21): warning C4244: 'return': conversion from 'WPARAM' to 'int', possible loss of data
+﻿  CatmullRom.cpp
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(446,54): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(447,57): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(457,54): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(458,57): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(462,55): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(463,58): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
   OpenGLTemplate.vcxproj -> C:\Users\Huntees\Desktop\computer-graphics\Coursework\x64\Debug\OpenGLTemplate.exe
