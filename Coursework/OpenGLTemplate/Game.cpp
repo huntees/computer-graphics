@@ -76,6 +76,7 @@ Game::Game()
 
 	m_cameraMode = 3;
 	m_freeview = false;
+	m_showPath = true;
 }
 
 // Destructor
@@ -144,6 +145,7 @@ void Game::Initialise()
 
 	m_cameraMode = 3;
 	m_freeview = false;
+	m_showPath = true;
 
 	m_starshipPosition = glm::vec3(0.f);
 	m_starshipOrientation = glm::mat4(1);
@@ -411,29 +413,31 @@ void Game::Render()
 		m_pSphere->Render();
 	modelViewMatrixStack.Pop();
 
-	// Render Catmull Spline Route
-	modelViewMatrixStack.Push();
-	pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
-	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-	m_pCatmullRom->RenderCentreline();
-	modelViewMatrixStack.Pop();	
-	
-	// Render Catmull Spline Route offsets
-	modelViewMatrixStack.Push();
-	pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
-	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-	m_pCatmullRom->RenderOffsetCurves();
-	modelViewMatrixStack.Pop();
+	if (m_showPath) {
+		// Render Catmull Spline Route
+		modelViewMatrixStack.Push();
+		pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pCatmullRom->RenderCentreline();
+		modelViewMatrixStack.Pop();
 
-	// Render Catmull Spline Route Track
-	modelViewMatrixStack.Push();
-	pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
-	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-	m_pCatmullRom->RenderTrack();
-	modelViewMatrixStack.Pop();
+		// Render Catmull Spline Route offsets
+		modelViewMatrixStack.Push();
+		pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pCatmullRom->RenderOffsetCurves();
+		modelViewMatrixStack.Pop();
+
+		// Render Catmull Spline Route Track
+		modelViewMatrixStack.Push();
+		pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pCatmullRom->RenderTrack();
+		modelViewMatrixStack.Pop();
+	}
 		
 	// Draw the 2D graphics after the 3D graphics
 	DisplayFrameRate();
@@ -510,14 +514,14 @@ void Game::HandleMovement() {
 
 	if (GetKeyState(VK_UP) & 0x80) {
 		m_cameraSpeed += 0.0001f * m_dt;
-		if (m_cameraSpeed > 0.3f) {
-			m_cameraSpeed = 0.3f;
+		if (m_cameraSpeed > m_topSpeed) {
+			m_cameraSpeed = m_topSpeed;
 		}
 	}
 	else if (GetKeyState(VK_DOWN) & 0x80) {
 		m_cameraSpeed -= 0.0001f * m_dt;
-		if (m_cameraSpeed < -0.3f) {
-			m_cameraSpeed = -0.3f;
+		if (m_cameraSpeed < -m_topSpeed) {
+			m_cameraSpeed = -m_topSpeed;
 		}
 	}
 
@@ -694,6 +698,10 @@ LRESULT Game::ProcessEvents(HWND window,UINT message, WPARAM w_param, LPARAM l_p
 
 		case 'F':
 			m_freeview = !m_freeview;
+			break;		
+		
+		case 'P':
+			m_showPath = !m_showPath;
 			break;
 
 		case 'C':

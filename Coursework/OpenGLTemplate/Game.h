@@ -94,6 +94,9 @@ private:
 	int m_cameraMode;
 	bool m_freeview;
 
+	bool m_showPath;
+	const float m_topSpeed = 0.5f;
+
 	const float HOVER_TIME = 1.5f;
 	float hover_timer{ HOVER_TIME };
 	float hover_timer2{ HOVER_TIME };
