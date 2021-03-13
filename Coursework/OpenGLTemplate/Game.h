@@ -49,6 +49,8 @@ private:
 
 	COpenAssetImportMesh* m_pMan;
 
+	void HandleMovement();
+
 	// Some other member variables
 	double m_dt;
 	int m_framesPerSecond;
@@ -81,15 +83,18 @@ private:
 	glm::vec3 m_spaceShipPosition;
 	glm::mat4 m_spaceShipOrientation;
 
+	float m_routeWidth;
 	float m_currentDistance;
 	float m_cameraSpeed;
 
-	float m_cameraRotation;
-
-	glm::vec3 m_starShipPosition;
-	glm::mat4 m_starShipOrientation;
+	glm::vec3 m_starshipPosition;
+	glm::mat4 m_starshipOrientation;
+	float m_starshipStrafe;
 
 	int m_cameraMode;
 	bool m_freeview;
 
+	const float HOVER_TIME = 1.5f;
+	float hover_timer{ HOVER_TIME };
+	float hover_timer2{ HOVER_TIME };
 };

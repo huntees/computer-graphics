@@ -69,6 +69,7 @@ Game::Game()
 	m_frameCount = 0;
 	m_elapsedTime = 0.0f;
 
+	m_routeWidth = 70.f;
 	m_currentDistance = 0.0f;
 	m_cameraSpeed = 0.0f;
 	m_cameraSpeed = 0.0f;
@@ -137,14 +138,15 @@ void Game::Initialise()
 	m_spaceShipPosition = glm::vec3(0.f);
 	m_spaceShipOrientation = glm::mat4(1);
 
+	m_routeWidth = 70.f;
 	m_currentDistance = 0.0f;
 	m_cameraSpeed = 0.0f;
 
 	m_cameraMode = 3;
 	m_freeview = false;
 
-	m_starShipPosition = glm::vec3(0.f);
-	m_starShipOrientation = glm::mat4(1);
+	m_starshipPosition = glm::vec3(0.f);
+	m_starshipOrientation = glm::mat4(1);
 
 	RECT dimensions = m_gameWindow.GetDimensions();
 
@@ -230,7 +232,7 @@ void Game::Initialise()
 	m_pCube->Create("resources\\textures\\Tile41a.jpg");
 
 	m_pCatmullRom->CreateCentreline();
-	m_pCatmullRom->CreateOffsetCurves(70.f);
+	m_pCatmullRom->CreateOffsetCurves(m_routeWidth);
 	m_pCatmullRom->CreateTrack();
 }
 
@@ -357,10 +359,10 @@ void Game::Render()
 	
 	// Render the Starship 
 	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(m_starShipPosition);
-		modelViewMatrixStack *= m_starShipOrientation;
-		modelViewMatrixStack.Scale(1.f);
+		modelViewMatrixStack.Translate(m_starshipPosition);
+		modelViewMatrixStack *= m_starshipOrientation;
 		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+		modelViewMatrixStack.Scale(1.f);
 		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
 		m_pStarship->Render();
@@ -460,23 +462,24 @@ void Game::Update()
 	glm::vec3 cam_N = glm::normalize(glm::cross(cam_T, p_y)); //(x axis)
 	glm::vec3 cam_B = glm::normalize(glm::cross(cam_N, cam_T)); //(y axis)
 
-	glm::vec3 up = glm::rotate(glm::vec3(0, 1, 0), m_cameraRotation, cam_T);
+	glm::vec3 up = glm::rotate(glm::vec3(0, 1, 0), m_starshipStrafe, cam_T);
 
 	if (!m_freeview) {
 		if (m_cameraMode == 1) {
-			m_pCamera->Set(p + (5.f * cam_B) + (4.f * cam_T), p + (500.0f * cam_T), p_y);
+			m_pCamera->Set(p + (5.f * cam_B) + (4.f * cam_T) + (m_starshipStrafe * cam_N), p + (500.0f * cam_T), p_y);
 		}
 		else if (m_cameraMode == 2) {
-			m_pCamera->Set(p + (5.f * cam_B) + (1.5f * cam_T), p + (500.0f * cam_T), p_y);
+			m_pCamera->Set(p + (5.f * cam_B) + (1.5f * cam_T) + (m_starshipStrafe * cam_N), p + (500.0f * cam_T), p_y);
 		}
 		else if (m_cameraMode == 3) {
-			m_pCamera->Set(p + (13.f * cam_B) + (-30.f * cam_T), p + (200.0f * cam_T), p_y);
+			m_pCamera->Set(p + (13.f * cam_B) + (-30.f * cam_T) + ((m_starshipStrafe * 0.7f)  * cam_N), p + (200.0f * cam_T), p_y);
 		}
 	}
 
-	m_starShipPosition = p + (2.9f * cam_B);
-	m_starShipOrientation = glm::mat4(glm::mat3(cam_T, cam_B, cam_N));
+	m_starshipPosition = p + (2.9f * cam_B) + (m_starshipStrafe * cam_N);
+	m_starshipOrientation = glm::mat4(glm::mat3(cam_T, cam_B, cam_N)); 
 
+	HandleMovement();
 
 	m_pAudio->Update();
 
@@ -496,7 +499,45 @@ void Game::Update()
 	m_spaceShipOrientation = glm::mat4(glm::mat3(T, B, N));
 }
 
+void Game::HandleMovement() {
+	if (m_cameraSpeed > 0.f) {
+		m_cameraSpeed -= 0.00004 * m_dt;
 
+		if (m_cameraSpeed < 0.f) {
+			m_cameraSpeed = 0.f;
+		}
+	}
+
+	if (GetKeyState(VK_UP) & 0x80) {
+		m_cameraSpeed += 0.0001f * m_dt;
+		if (m_cameraSpeed > 0.3f) {
+			m_cameraSpeed = 0.3f;
+		}
+	}
+	else if (GetKeyState(VK_DOWN) & 0x80) {
+		m_cameraSpeed -= 0.0001f * m_dt;
+		if (m_cameraSpeed < -0.3f) {
+			m_cameraSpeed = -0.3f;
+		}
+	}
+
+	if (GetKeyState(VK_RIGHT) & 0x80) {
+
+		m_starshipStrafe += 0.1f * m_dt;
+
+		if (m_starshipStrafe > m_routeWidth * 0.4) {
+			m_starshipStrafe = m_routeWidth * 0.4;
+		}
+	}
+	else if (GetKeyState(VK_LEFT) & 0x80) {
+
+		m_starshipStrafe -= 0.1f * m_dt;
+
+		if (m_starshipStrafe < -m_routeWidth * 0.4) {
+			m_starshipStrafe = -m_routeWidth * 0.4;
+		}
+	}
+}
 
 void Game::DisplayFrameRate()
 {
@@ -641,22 +682,20 @@ LRESULT Game::ProcessEvents(HWND window,UINT message, WPARAM w_param, LPARAM l_p
 		case VK_F1:
 			m_pAudio->PlayEventSound();
 			break;
-		case VK_UP:
-			m_cameraSpeed += 0.01f;
-			break;
-		case VK_DOWN:
-			m_cameraSpeed -= 0.01f;
-			break;
-		case VK_RIGHT:
-			m_cameraRotation += 0.01f * m_dt;
-			break;
-		case VK_LEFT:
-			m_cameraRotation -= 0.01f * m_dt;
-			break;
-			break;
+		//case VK_UP:
+		//	m_cameraSpeed += 0.01f;
+		//	if (m_cameraSpeed > 0.3f) {
+		//		m_cameraSpeed = 0.3f;
+		//	}
+		//	break;
+		//case VK_DOWN:
+		//	m_cameraSpeed -= 0.01f;
+		//	break;
+
 		case 'F':
 			m_freeview = !m_freeview;
 			break;
+
 		case 'C':
 			m_cameraMode++;
 			if (m_cameraMode > 3) {
