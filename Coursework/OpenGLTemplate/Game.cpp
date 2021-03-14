@@ -235,7 +235,7 @@ void Game::Initialise()
 
 	m_pCatmullRom->CreateCentreline();
 	m_pCatmullRom->CreateOffsetCurves(m_routeWidth);
-	m_pCatmullRom->CreateTrack();
+	m_pCatmullRom->CreateTrack("resources\\textures\\grid.png");
 }
 
 // Render method runs repeatedly in a loop
@@ -245,6 +245,8 @@ void Game::Render()
 	// Clear the buffers and enable depth testing (z-buffering)
 	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_DEPTH_TEST);
+
+	glEnable(GL_CULL_FACE);
 
 	// Set up a matrix stack
 	glutil::MatrixStack modelViewMatrixStack;
@@ -329,36 +331,6 @@ void Game::Render()
 		m_pFighterMesh->Render();
 	modelViewMatrixStack.Pop();
 
-	// Render the City 
-	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(glm::vec3(0.0f, 0.0f, 0.0f));
-		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
-		modelViewMatrixStack.Scale(1.f);
-		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pCity->Render();
-	modelViewMatrixStack.Pop();
-
-	// Render the Center City 
-	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(glm::vec3(1050.0f, -54.f, -450.0f));
-		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(60.f));
-		modelViewMatrixStack.Scale(1.2f, 2.5f, 1.2f);
-		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pCenterCity->Render();
-	modelViewMatrixStack.Pop();	
-
-	// Render the Downtown 
-	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(glm::vec3(120.f, 0.f, 290.0f));
-		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(10.f));
-		modelViewMatrixStack.Scale(1.7f, 3.5f, 1.7f);
-		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pDowntown->Render();
-	modelViewMatrixStack.Pop();	
-	
 	// Render the Starship 
 	modelViewMatrixStack.Push();
 		modelViewMatrixStack.Translate(m_starshipPosition);
@@ -391,7 +363,6 @@ void Game::Render()
 	modelViewMatrixStack.Pop();
 
 
-	
 	// Render the barrel 
 	modelViewMatrixStack.Push();
 		modelViewMatrixStack.Translate(glm::vec3(100.0f, 0.0f, 0.0f));
@@ -413,29 +384,60 @@ void Game::Render()
 		m_pSphere->Render();
 	modelViewMatrixStack.Pop();
 
+	glDisable(GL_CULL_FACE);
+	// Render the City 
+	modelViewMatrixStack.Push();
+		modelViewMatrixStack.Translate(glm::vec3(0.0f, 0.0f, 0.0f));
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+		modelViewMatrixStack.Scale(1.f);
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pCity->Render();
+	modelViewMatrixStack.Pop();
+
+	// Render the Center City 
+	modelViewMatrixStack.Push();
+		modelViewMatrixStack.Translate(glm::vec3(1050.0f, -54.f, -450.0f));
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(60.f));
+		modelViewMatrixStack.Scale(1.2f, 2.5f, 1.2f);
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pCenterCity->Render();
+	modelViewMatrixStack.Pop();
+
+	// Render the Downtown 
+	modelViewMatrixStack.Push();
+		modelViewMatrixStack.Translate(glm::vec3(120.f, 0.f, 290.0f));
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(10.f));
+		modelViewMatrixStack.Scale(1.7f, 3.5f, 1.7f);
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pDowntown->Render();
+	modelViewMatrixStack.Pop();
+
 	if (m_showPath) {
 		// Render Catmull Spline Route
 		modelViewMatrixStack.Push();
-		pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
-		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pCatmullRom->RenderCentreline();
+			pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
+			pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+			pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+			m_pCatmullRom->RenderCentreline();
 		modelViewMatrixStack.Pop();
 
 		// Render Catmull Spline Route offsets
 		modelViewMatrixStack.Push();
-		pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
-		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pCatmullRom->RenderOffsetCurves();
+			pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
+			pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+			pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+			m_pCatmullRom->RenderOffsetCurves();
 		modelViewMatrixStack.Pop();
 
 		// Render Catmull Spline Route Track
 		modelViewMatrixStack.Push();
-		pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
-		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pCatmullRom->RenderTrack();
+			pMainProgram->SetUniform("bUseTexture", true); // turn off texturing
+			pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+			pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+			m_pCatmullRom->RenderTrack();
 		modelViewMatrixStack.Pop();
 	}
 		

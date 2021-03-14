@@ -1,8 +1,8 @@
 ﻿  CatmullRom.cpp
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(509,54): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(510,57): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(520,54): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(521,57): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(525,55): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(526,58): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(525,54): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(526,57): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(536,54): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(537,57): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(541,55): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\CatmullRom.cpp(542,58): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
   OpenGLTemplate.vcxproj -> C:\Users\Huntees\Desktop\computer-graphics\Coursework\x64\Debug\OpenGLTemplate.exe

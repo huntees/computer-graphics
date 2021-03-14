@@ -17,7 +17,7 @@ public:
 	void CreateOffsetCurves(float width);
 	void RenderOffsetCurves();
 
-	void CreateTrack();
+	void CreateTrack(string filename);
 	void RenderTrack();
 
 	int CurrentLap(float d); // Return the currvent lap (starting from 0) based on distance along the control curve.

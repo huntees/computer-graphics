@@ -95,7 +95,7 @@ private:
 	bool m_freeview;
 
 	bool m_showPath;
-	const float m_topSpeed = 0.5f;
+	const float m_topSpeed = 0.2f;
 
 	const float HOVER_TIME = 1.5f;
 	float hover_timer{ HOVER_TIME };

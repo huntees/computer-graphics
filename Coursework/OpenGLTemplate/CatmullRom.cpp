@@ -154,7 +154,7 @@ void CCatmullRom::SetControlPoints()
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, -1));
 	m_controlUpVectors.push_back(glm::vec3(0, 0, -1));
-	m_controlUpVectors.push_back(glm::vec3(0, 1, -1)); 
+	m_controlUpVectors.push_back(glm::vec3(0, 0, -1)); 
 	m_controlUpVectors.push_back(glm::vec3(0, 1, -1)); //35
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
@@ -170,7 +170,7 @@ void CCatmullRom::SetControlPoints()
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(1, 1, 0)); 
-	m_controlUpVectors.push_back(glm::vec3(-1, 0, 0)); //50
+	m_controlUpVectors.push_back(glm::vec3(-1, 1, 0)); //50
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
@@ -314,7 +314,7 @@ void CCatmullRom::CreateCentreline()
 	SetControlPoints();
 
 	// Call UniformlySampleControlPoints with the number of samples required
-	UniformlySampleControlPoints(500);
+	UniformlySampleControlPoints(1000);
 
 	// Create a VAO called m_vaoCentreline and a VBO to get the points onto the graphics card
 	glGenVertexArrays(1, &m_vaoCentreline);
@@ -451,8 +451,14 @@ void CCatmullRom::CreateOffsetCurves(float width)
 }
 
 
-void CCatmullRom::CreateTrack()
+void CCatmullRom::CreateTrack(string filename)
 {
+
+	m_texture.Load(filename);
+	m_texture.SetSamplerObjectParameter(GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	m_texture.SetSamplerObjectParameter(GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	m_texture.SetSamplerObjectParameter(GL_TEXTURE_WRAP_S, GL_REPEAT);
+	m_texture.SetSamplerObjectParameter(GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	// Generate a VAO called m_vaoTrack and a VBO to get the offset curve points and indices on the graphics card
 
@@ -464,16 +470,26 @@ void CCatmullRom::CreateTrack()
 	vbo.Create();
 	vbo.Bind();
 
-	glm::vec2 texCoord(0.0f, 0.0f);
+
+	glm::vec2 texCoordLeft[2] =
+	{
+		glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 1.0f)
+	};
+
+	glm::vec2 texCoordRight[2] =
+	{
+		glm::vec2(1.0f, 0.0f), glm::vec2(1.0f, 1.0f)
+	};
+
 	glm::vec3 normal(0.0f, 1.0f, 0.0f);
 	for (unsigned int i = 0; i < m_leftOffsetPoints.size() + 1; i++) {
 
 		vbo.AddData(&m_leftOffsetPoints[i % m_leftOffsetPoints.size()], sizeof(glm::vec3));
-		vbo.AddData(&texCoord, sizeof(glm::vec2));
+		vbo.AddData(&texCoordLeft[i % 2], sizeof(glm::vec2));
 		vbo.AddData(&normal, sizeof(glm::vec3));
 
 		vbo.AddData(&m_rightOffsetPoints[i % m_leftOffsetPoints.size()], sizeof(glm::vec3));
-		vbo.AddData(&texCoord, sizeof(glm::vec2));
+		vbo.AddData(&texCoordRight[i  % 2], sizeof(glm::vec2));
 		vbo.AddData(&normal, sizeof(glm::vec3));
 
 		m_vertexCount += 2;
@@ -529,13 +545,17 @@ void CCatmullRom::RenderOffsetCurves()
 
 void CCatmullRom::RenderTrack()
 {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Bind the VAO m_vaoTrack and render it
 	glBindVertexArray(m_vaoTrack);
+	m_texture.Bind();
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, m_vertexCount);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 int CCatmullRom::CurrentLap(float d)
