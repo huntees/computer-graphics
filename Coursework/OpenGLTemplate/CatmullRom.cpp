@@ -94,10 +94,10 @@ void CCatmullRom::SetControlPoints()
 	m_controlPoints.push_back(glm::vec3(5, 193, -514));
 	m_controlPoints.push_back(glm::vec3(-57, 210, -295));
 	m_controlPoints.push_back(glm::vec3(0, 230, -32)); //55
-	m_controlPoints.push_back(glm::vec3(32, 300, 117));
-	m_controlPoints.push_back(glm::vec3(140, 355, 218));
-	m_controlPoints.push_back(glm::vec3(175, 56, 465));
-	m_controlPoints.push_back(glm::vec3(221, 22, 640));
+	m_controlPoints.push_back(glm::vec3(25, 320, 137));
+	m_controlPoints.push_back(glm::vec3(140, 345, 218));
+	m_controlPoints.push_back(glm::vec3(175, 60, 465));
+	m_controlPoints.push_back(glm::vec3(221, 28, 640));
 	m_controlPoints.push_back(glm::vec3(362, 90, 768)); //60
 	m_controlPoints.push_back(glm::vec3(488, 188, 490));
 	m_controlPoints.push_back(glm::vec3(610, 288, 255));
@@ -107,16 +107,16 @@ void CCatmullRom::SetControlPoints()
 	m_controlPoints.push_back(glm::vec3(1264, 619, -873));
 	m_controlPoints.push_back(glm::vec3(1222, 488, -535));
 	m_controlPoints.push_back(glm::vec3(1167, 437, -179));
+	m_controlPoints.push_back(glm::vec3(1180, 437, 0));
 	m_controlPoints.push_back(glm::vec3(1223, 438, 175));
-	m_controlPoints.push_back(glm::vec3(1252, 433, 506));
+	m_controlPoints.push_back(glm::vec3(1233, 438, 367));
+	m_controlPoints.push_back(glm::vec3(1252, 433, 506)); //70
 	m_controlPoints.push_back(glm::vec3(1226, 435, 811));
 	m_controlPoints.push_back(glm::vec3(1164, 439, 1161));
 	m_controlPoints.push_back(glm::vec3(1029, 445, 1570));
+	m_controlPoints.push_back(glm::vec3(926, 445, 1760));
 	m_controlPoints.push_back(glm::vec3(863, 448, 1923));
 	m_controlPoints.push_back(glm::vec3(703, 438, 2208));
-
-
-
 
 
 
@@ -131,8 +131,8 @@ void CCatmullRom::SetControlPoints()
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0)); //10
-	m_controlUpVectors.push_back(glm::vec3(1, 1, 0));
-	m_controlUpVectors.push_back(glm::vec3(1, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(1, 1, -0.2));
+	m_controlUpVectors.push_back(glm::vec3(1, 1, 1));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0)); 
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0)); //15
@@ -141,9 +141,9 @@ void CCatmullRom::SetControlPoints()
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0)); 
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0)); //20
-	m_controlUpVectors.push_back(glm::vec3(1, 1, 0));
-	m_controlUpVectors.push_back(glm::vec3(1, 1, 0));
-	m_controlUpVectors.push_back(glm::vec3(1, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(1, 1, 1));
+	m_controlUpVectors.push_back(glm::vec3(1, 1, 1));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0)); 
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0)); //25
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
@@ -169,32 +169,36 @@ void CCatmullRom::SetControlPoints()
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
-	m_controlUpVectors.push_back(glm::vec3(1, 1, 0)); 
-	m_controlUpVectors.push_back(glm::vec3(-1, 1, 0)); //50
+	m_controlUpVectors.push_back(glm::vec3(1, 1, 0)); //1, 1, -1
+	m_controlUpVectors.push_back(glm::vec3(-1, 1, 1)); //50
+	m_controlUpVectors.push_back(glm::vec3(1, 1, -1));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
-	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
-	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(1, 1, 1));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0)); 
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0)); //55
-	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(1, 1, -1));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(1, 1, 0)); 
-	m_controlUpVectors.push_back(glm::vec3(-1, 1, 0)); //60
-	m_controlUpVectors.push_back(glm::vec3(-1, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(0, 1, -1)); //60
+	m_controlUpVectors.push_back(glm::vec3(-1, 0, 0));
 	m_controlUpVectors.push_back(glm::vec3(-1, 1, 0));
 	m_controlUpVectors.push_back(glm::vec3(0, -1, 0));
 	m_controlUpVectors.push_back(glm::vec3(0, -1, 0)); 
 	m_controlUpVectors.push_back(glm::vec3(0, -1, 0)); //65
 	m_controlUpVectors.push_back(glm::vec3(0, -1, 0));
+	m_controlUpVectors.push_back(glm::vec3(1, -1, 1));
+	m_controlUpVectors.push_back(glm::vec3(1, 0, 1)); 
+	m_controlUpVectors.push_back(glm::vec3(1, 1, 1)); 
+	m_controlUpVectors.push_back(glm::vec3(0, 1, 0)); //70
+	m_controlUpVectors.push_back(glm::vec3(-1, 1, -1));
+	m_controlUpVectors.push_back(glm::vec3(-1, 0, -1));
+	m_controlUpVectors.push_back(glm::vec3(-1, -1, -1));
 	m_controlUpVectors.push_back(glm::vec3(0, -1, 0));
-	m_controlUpVectors.push_back(glm::vec3(1, -1, 0));
-	m_controlUpVectors.push_back(glm::vec3(1, -1, 0)); 
-	m_controlUpVectors.push_back(glm::vec3(1, 0, 0)); //70
-	m_controlUpVectors.push_back(glm::vec3(1, 1, 0));
-	m_controlUpVectors.push_back(glm::vec3(-1, 0, 0));
-	m_controlUpVectors.push_back(glm::vec3(-1, 0, 0));
-	m_controlUpVectors.push_back(glm::vec3(-1, 1, 0));
+	m_controlUpVectors.push_back(glm::vec3(1, -1, 1));
+
+	m_controlUpVectors.push_back(glm::vec3(1, 0, 1));
+	m_controlUpVectors.push_back(glm::vec3(1, 1, 1));
 	m_controlUpVectors.push_back(glm::vec3(0, 1, 0));
 }
 
