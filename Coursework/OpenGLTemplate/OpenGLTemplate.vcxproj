@@ -163,6 +163,8 @@
   <ItemGroup>
     <None Include="resources\shaders\mainShader.frag" />
     <None Include="resources\shaders\mainShader.vert" />
+    <None Include="resources\shaders\spotlightShader.frag" />
+    <None Include="resources\shaders\spotlightShader.vert" />
     <None Include="resources\shaders\textShader.frag" />
     <None Include="resources\shaders\textShader.vert" />
   </ItemGroup>

@@ -166,6 +166,8 @@ void Game::Initialise()
 	sShaderFileNames.push_back("mainShader.frag");
 	sShaderFileNames.push_back("textShader.vert");
 	sShaderFileNames.push_back("textShader.frag");
+	sShaderFileNames.push_back("spotlightShader.vert");
+	sShaderFileNames.push_back("spotlightShader.frag");
 
 	for (int i = 0; i < (int) sShaderFileNames.size(); i++) {
 		string sExt = sShaderFileNames[i].substr((int) sShaderFileNames[i].size()-4, 4);
@@ -195,6 +197,14 @@ void Game::Initialise()
 	pFontProgram->AddShaderToProgram(&shShaders[3]);
 	pFontProgram->LinkProgram();
 	m_pShaderPrograms->push_back(pFontProgram);
+
+	// Create the spotlight shader program
+	CShaderProgram* pSpotlightProgram = new CShaderProgram;
+	pSpotlightProgram->CreateProgram();
+	pSpotlightProgram->AddShaderToProgram(&shShaders[4]);
+	pSpotlightProgram->AddShaderToProgram(&shShaders[5]);
+	pSpotlightProgram->LinkProgram();
+	m_pShaderPrograms->push_back(pSpotlightProgram);
 
 	// You can follow this pattern to load additional shaders
 
@@ -282,7 +292,6 @@ void Game::Render()
 	pMainProgram->SetUniform("material1.Md", glm::vec3(0.0f));	// Diffuse material reflectance
 	pMainProgram->SetUniform("material1.Ms", glm::vec3(0.0f));	// Specular material reflectance
 	pMainProgram->SetUniform("material1.shininess", 15.0f);		// Shininess material property
-		
 
 	// Render the skybox and terrain with full ambient reflectance 
 	modelViewMatrixStack.Push();
@@ -303,22 +312,43 @@ void Game::Render()
 		m_pPlanarTerrain->Render();
 	modelViewMatrixStack.Pop();
 
-
 	// Turn on diffuse + specular materials
 	pMainProgram->SetUniform("material1.Ma", glm::vec3(0.5f));	// Ambient material reflectance
 	pMainProgram->SetUniform("material1.Md", glm::vec3(0.5f));	// Diffuse material reflectance
 	pMainProgram->SetUniform("material1.Ms", glm::vec3(1.0f));	// Specular material reflectance	
 
+	// Switch to the spotlight program
+	CShaderProgram* pSpotlightProgram = (*m_pShaderPrograms)[2];
+	pSpotlightProgram->UseProgram();
+	pSpotlightProgram->SetUniform("sampler0", 0);
 
-	// Render the horse 
-	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(glm::vec3(0.0f, 0.0f, 0.0f));
-		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(180.0f));
-		modelViewMatrixStack.Scale(2.5f);
-		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pHorseMesh->Render();
-	modelViewMatrixStack.Pop();	
+	// Set light and materials in spotlight programme
+	glm::vec4 spotlightPosition1(m_pCamera->GetPosition(), 1);
+	pSpotlightProgram->SetUniform("light1.position", viewMatrix * spotlightPosition1); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("light1.La", glm::vec3(1.f));
+	pSpotlightProgram->SetUniform("light1.Ld", glm::vec3(1.f));
+	pSpotlightProgram->SetUniform("light1.Ls", glm::vec3(1.f));
+	pSpotlightProgram->SetUniform("material1.shininess", 15.0f);
+	pSpotlightProgram->SetUniform("material1.Ma", glm::vec3(0.5f));
+	pSpotlightProgram->SetUniform("material1.Md", glm::vec3(0.5f));
+	pSpotlightProgram->SetUniform("material1.Ms", glm::vec3(1.0f));
+
+	pSpotlightProgram->SetUniform("light1.direction", glm::normalize(viewNormalMatrix * glm::vec3(0, -1, 0)));
+	pSpotlightProgram->SetUniform("light1.exponent", 20.0f);
+	pSpotlightProgram->SetUniform("light1.cutoff", 30.0f);
+
+	pSpotlightProgram->SetUniform("matrices.projMatrix", m_pCamera->GetPerspectiveProjectionMatrix());
+
+
+	//// Render the horse 
+	//modelViewMatrixStack.Push();
+	//	modelViewMatrixStack.Translate(glm::vec3(0.0f, 0.0f, 0.0f));
+	//	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(180.0f));
+	//	modelViewMatrixStack.Scale(2.5f);
+	//	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	//	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	//	m_pHorseMesh->Render();
+	//modelViewMatrixStack.Pop();	
 	
 	// Render the fighter 
 	modelViewMatrixStack.Push();
@@ -328,6 +358,8 @@ void Game::Render()
 		modelViewMatrixStack.Scale(1.f);
 		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
 		m_pFighterMesh->Render();
 	modelViewMatrixStack.Pop();
 
@@ -339,6 +371,8 @@ void Game::Render()
 		modelViewMatrixStack.Scale(1.f);
 		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
 		m_pStarship->Render();
 	modelViewMatrixStack.Pop();
 	
@@ -349,40 +383,42 @@ void Game::Render()
 		modelViewMatrixStack.Scale(0.55f);
 		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
 		m_pMan->Render();
 	modelViewMatrixStack.Pop();
 
-	// Render the cube 
-	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(glm::vec3(0.0f, 2.0f, 0.0f));
-		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(0.0f));
-		modelViewMatrixStack.Scale(2.f);
-		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pCube->Render();
-	modelViewMatrixStack.Pop();
+	//// Render the cube 
+	//modelViewMatrixStack.Push();
+	//	modelViewMatrixStack.Translate(glm::vec3(0.0f, 2.0f, 0.0f));
+	//	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(0.0f));
+	//	modelViewMatrixStack.Scale(2.f);
+	//	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	//	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	//	m_pCube->Render();
+	//modelViewMatrixStack.Pop();
 
 
-	// Render the barrel 
-	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(glm::vec3(100.0f, 0.0f, 0.0f));
-		modelViewMatrixStack.Scale(5.0f);
-		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pBarrelMesh->Render();
-	modelViewMatrixStack.Pop();
+	//// Render the barrel 
+	//modelViewMatrixStack.Push();
+	//	modelViewMatrixStack.Translate(glm::vec3(100.0f, 0.0f, 0.0f));
+	//	modelViewMatrixStack.Scale(5.0f);
+	//	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	//	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	//	m_pBarrelMesh->Render();
+	//modelViewMatrixStack.Pop();
 	
 
-	// Render the sphere
-	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(glm::vec3(0.0f, 2.0f, 150.0f));
-		modelViewMatrixStack.Scale(2.0f);
-		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		// To turn off texture mapping and use the sphere colour only (currently white material), uncomment the next line
-		//pMainProgram->SetUniform("bUseTexture", false);
-		m_pSphere->Render();
-	modelViewMatrixStack.Pop();
+	//// Render the sphere
+	//modelViewMatrixStack.Push();
+	//	modelViewMatrixStack.Translate(glm::vec3(0.0f, 2.0f, 150.0f));
+	//	modelViewMatrixStack.Scale(2.0f);
+	//	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	//	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	//	// To turn off texture mapping and use the sphere colour only (currently white material), uncomment the next line
+	//	//pMainProgram->SetUniform("bUseTexture", false);
+	//	m_pSphere->Render();
+	//modelViewMatrixStack.Pop();
 
 	glDisable(GL_CULL_FACE);
 	// Render the City 
@@ -392,6 +428,8 @@ void Game::Render()
 		modelViewMatrixStack.Scale(1.f);
 		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
 		m_pCity->Render();
 	modelViewMatrixStack.Pop();
 
@@ -402,6 +440,8 @@ void Game::Render()
 		modelViewMatrixStack.Scale(1.2f, 2.5f, 1.2f);
 		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
 		m_pCenterCity->Render();
 	modelViewMatrixStack.Pop();
 
@@ -412,33 +452,45 @@ void Game::Render()
 		modelViewMatrixStack.Scale(1.7f, 3.5f, 1.7f);
 		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
 		m_pDowntown->Render();
 	modelViewMatrixStack.Pop();
 
 	if (m_showPath) {
+		//pMainProgram->SetUniform("light1.La", glm::vec3(0.8f));
+
 		// Render Catmull Spline Route
 		modelViewMatrixStack.Push();
-			pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
-			pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-			pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-			m_pCatmullRom->RenderCentreline();
+		pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pCatmullRom->RenderCentreline();
 		modelViewMatrixStack.Pop();
 
 		// Render Catmull Spline Route offsets
 		modelViewMatrixStack.Push();
-			pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
-			pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-			pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-			m_pCatmullRom->RenderOffsetCurves();
+		pMainProgram->SetUniform("bUseTexture", false); // turn off texturing
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pCatmullRom->RenderOffsetCurves();
 		modelViewMatrixStack.Pop();
 
 		// Render Catmull Spline Route Track
 		modelViewMatrixStack.Push();
-			pMainProgram->SetUniform("bUseTexture", true); // turn off texturing
-			pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-			pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-			m_pCatmullRom->RenderTrack();
+		pMainProgram->SetUniform("bUseTexture", true); // turn off texturing
+		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pCatmullRom->RenderTrack();
 		modelViewMatrixStack.Pop();
+
+		//pMainProgram->SetUniform("light1.La", glm::vec3(0.2f));
 	}
 		
 	// Draw the 2D graphics after the 3D graphics

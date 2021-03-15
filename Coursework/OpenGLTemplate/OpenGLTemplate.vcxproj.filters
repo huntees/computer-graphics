@@ -144,5 +144,11 @@
     <None Include="resources\shaders\textShader.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="resources\shaders\spotlightShader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\spotlightShader.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
