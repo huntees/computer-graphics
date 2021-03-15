@@ -29,7 +29,8 @@ struct MaterialInfo
 };
 
 uniform LightInfo light1; 
-uniform LightInfo light2; 
+uniform LightInfo spotlight1; 
+uniform LightInfo spotlight2; 
 
 uniform MaterialInfo material1; 
 
@@ -60,7 +61,6 @@ vec3 BlinnPhongSpotlightModel(LightInfo light, vec4 p, vec3 n)
 	vec3 s = normalize(vec3(light.position - p));
 	float angle = acos(dot(-s, light.direction));
 	float cutoff = radians(clamp(light.cutoff, 0.0, 90.0));
-	vec3 ambient = light.La * material1.Ma;
 
 	if (angle < cutoff) {
 		float spotFactor = pow(dot(-s, light.direction), light.exponent);
@@ -74,20 +74,27 @@ vec3 BlinnPhongSpotlightModel(LightInfo light, vec4 p, vec3 n)
 			specular = light.Ls * material1.Ms * pow(max(dot(h, n), 0.0), material1.shininess);
 		}
 
-	return ambient + spotFactor * (diffuse + specular);
+	return spotFactor * (diffuse + specular);
 	}
 	else {
-		return ambient;
+		return vec3(0,0,0);
 	}
 }
 
 
 void main()
 {	
-	vec4 vTexColour = texture(sampler0, vTexCoord);	
+	vec3 vColour = PhongModel(p, normalize(n));
 
-	vec3 vColour = BlinnPhongSpotlightModel(light1, p, normalize(n));
-	//vColour += BlinnPhongSpotlightModel(light2, p, normalize(n));
+	vColour += BlinnPhongSpotlightModel(spotlight1, p, normalize(n));
+	vColour += BlinnPhongSpotlightModel(spotlight2, p, normalize(n));
+
+	//vec3 spotlight_vColour = BlinnPhongSpotlightModel(spotlight1, p, normalize(n));
+	//spotlight_vColour += BlinnPhongSpotlightModel(spotlight2, p, normalize(n));
+
+	//vColour *= spotlight_vColour;
+
+	vec4 vTexColour = texture(sampler0, vTexCoord);	
 
 	vOutputColour = vTexColour*vec4(vColour, 1);
 	
