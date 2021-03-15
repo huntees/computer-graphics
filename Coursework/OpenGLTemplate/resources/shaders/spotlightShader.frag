@@ -29,8 +29,7 @@ struct MaterialInfo
 };
 
 uniform LightInfo light1; 
-uniform LightInfo spotlight1; 
-uniform LightInfo spotlight2; 
+uniform LightInfo spotlight[8]; 
 
 uniform MaterialInfo material1; 
 
@@ -86,11 +85,10 @@ void main()
 {	
 	vec3 vColour = PhongModel(p, normalize(n));
 
-	vColour += BlinnPhongSpotlightModel(spotlight1, p, normalize(n));
-	vColour += BlinnPhongSpotlightModel(spotlight2, p, normalize(n));
+	for (int i = 0 ; i < 2 ; i++) { 
+		vColour += BlinnPhongSpotlightModel(spotlight[i], p, normalize(n));
+	}
 
-	//vec3 spotlight_vColour = BlinnPhongSpotlightModel(spotlight1, p, normalize(n));
-	//spotlight_vColour += BlinnPhongSpotlightModel(spotlight2, p, normalize(n));
 
 	//vColour *= spotlight_vColour;
 
