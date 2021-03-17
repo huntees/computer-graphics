@@ -120,7 +120,7 @@ void main()
 	if (renderSkybox) {
 		vOutputColour = texture(CubeMapTex, worldPosition);
 
-		vOutputColour.rgb = mix(vec3(0.5), vOutputColour.rgb, fogFactor);
+		//vOutputColour.rgb = mix(vec3(0.5), vOutputColour.rgb, fogFactor);
 
 	} else {
 		vec3 vColour = PhongModel(p, normalize(n));
