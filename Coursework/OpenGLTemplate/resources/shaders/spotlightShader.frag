@@ -3,6 +3,7 @@
 in vec2 vTexCoord;			// Interpolated texture coordinate using texture coordinate from the vertex shader
 
 uniform sampler2D sampler0;  // The texture sampler
+uniform samplerCube CubeMapTex;
 
 out vec4 vOutputColour;
 
@@ -29,9 +30,14 @@ struct MaterialInfo
 };
 
 uniform LightInfo light1; 
-uniform LightInfo spotlight[8]; 
+uniform LightInfo pointlight; 
+uniform LightInfo spotlight[30]; 
 
 uniform MaterialInfo material1; 
+
+in vec3 worldPosition;
+uniform bool renderSkybox;
+
 
 // This function implements the Phong shading model
 // The code is based on the OpenGL 4.0 Shading Language Cookbook, pp. 67 - 68, with a few tweaks. 
@@ -58,8 +64,10 @@ vec3 PhongModel(vec4 p, vec3 n)
 vec3 BlinnPhongSpotlightModel(LightInfo light, vec4 p, vec3 n)
 {
 	vec3 s = normalize(vec3(light.position - p));
+	float dist = length(vec3(p - light.position));
 	float angle = acos(dot(-s, light.direction));
 	float cutoff = radians(clamp(light.cutoff, 0.0, 90.0));
+	vec3 ambient = light.La * material1.Ma;
 
 	if (angle < cutoff) {
 		float spotFactor = pow(dot(-s, light.direction), light.exponent);
@@ -73,27 +81,63 @@ vec3 BlinnPhongSpotlightModel(LightInfo light, vec4 p, vec3 n)
 			specular = light.Ls * material1.Ms * pow(max(dot(h, n), 0.0), material1.shininess);
 		}
 
-	return spotFactor * (diffuse + specular);
+	return (ambient + spotFactor * ((diffuse + specular)  / (dist * 0.008)));
 	}
 	else {
-		return vec3(0,0,0);
+		return ambient;
 	}
+}
+
+vec3 PointlightModel(LightInfo light, vec4 p, vec3 n)
+{
+	vec3 s = normalize(vec3(light.position - p));
+	float dist = length(vec3(light.position - p));
+	vec3 v = normalize(-p.xyz);
+	vec3 r = reflect(-s, n);
+
+	float sDotN = max(dot(s, n), 0.0);
+	vec3 diffuse = light.Ld * material1.Md * sDotN;
+	vec3 specular = vec3(0.0);
+
+	vec3 h = normalize(v + s);
+
+	if (sDotN > 0.0)
+		specular = light.Ls * material1.Ms * pow(max(dot(h, n), 0.0), material1.shininess);
+	
+	return (diffuse + specular) / (dist * 0.1);
+
 }
 
 
 void main()
 {	
-	vec3 vColour = PhongModel(p, normalize(n));
+	float maxDist = 2800;
+	float minDist = 1;
+	float dist = abs(p.z);
+	float fogFactor = (maxDist - dist) / (maxDist - minDist);
+	fogFactor = clamp(fogFactor, 0.0, 1.0);
 
-	for (int i = 0 ; i < 2 ; i++) { 
-		vColour += BlinnPhongSpotlightModel(spotlight[i], p, normalize(n));
+	if (renderSkybox) {
+		vOutputColour = texture(CubeMapTex, worldPosition);
+
+		vOutputColour.rgb = mix(vec3(0.5), vOutputColour.rgb, fogFactor);
+
+	} else {
+		vec3 vColour = PhongModel(p, normalize(n));
+
+		vColour += PointlightModel(pointlight, p, normalize(n));
+
+		for (int i = 0 ; i < 30 ; i++) { 
+			vColour += BlinnPhongSpotlightModel(spotlight[i], p, normalize(n));
+		}
+
+		vec4 vTexColour = texture(sampler0, vTexCoord);	
+
+
+
+		vOutputColour = vTexColour*vec4(vColour, 1);
+
+		vOutputColour.rgb = mix(vec3(0.5), vOutputColour.rgb, fogFactor);
 	}
-
-
-	//vColour *= spotlight_vColour;
-
-	vec4 vTexColour = texture(sampler0, vTexCoord);	
-
-	vOutputColour = vTexColour*vec4(vColour, 1);
 	
 }

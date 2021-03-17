@@ -18,8 +18,12 @@ out vec2 vTexCoord;	// Texture coordinate
 out vec3 n;
 out vec4 p;
 
+out vec3 worldPosition;	// used for skybox
+
 void main()
 {	
+	// Save the world position for rendering the skybox
+	worldPosition = inPosition;
 
 	// Transform the vertex spatial position using the projection and modelview matrices
 	gl_Position = matrices.projMatrix * matrices.modelViewMatrix * vec4(inPosition, 1.0);

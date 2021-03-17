@@ -88,6 +88,8 @@ private:
 	float m_cameraSpeed;
 
 	glm::vec3 m_starshipPosition;
+	glm::vec3 m_starshipFrontLightPosition;
+	glm::vec3 m_starshipBackLightPosition;
 	glm::mat4 m_starshipOrientation;
 	float m_starshipStrafe;
 
@@ -96,6 +98,8 @@ private:
 
 	bool m_showPath;
 	const float m_topSpeed = 0.2f;
+
+	glm::vec3 m_starship_B;
 
 	const float HOVER_TIME = 1.5f;
 	float hover_timer{ HOVER_TIME };

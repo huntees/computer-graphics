@@ -294,16 +294,16 @@ void Game::Render()
 	pMainProgram->SetUniform("material1.shininess", 15.0f);		// Shininess material property
 
 	// Render the skybox and terrain with full ambient reflectance 
-	modelViewMatrixStack.Push();
-		pMainProgram->SetUniform("renderSkybox", true);
-		// Translate the modelview matrix to the camera eye point so skybox stays centred around camera
-		glm::vec3 vEye = m_pCamera->GetPosition();
-		modelViewMatrixStack.Translate(vEye);
-		pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pSkybox->Render(cubeMapTextureUnit);
-		pMainProgram->SetUniform("renderSkybox", false);
-	modelViewMatrixStack.Pop();
+	//modelViewMatrixStack.Push();
+	//	pMainProgram->SetUniform("renderSkybox", true);
+	//	// Translate the modelview matrix to the camera eye point so skybox stays centred around camera
+	//	glm::vec3 vEye = m_pCamera->GetPosition();
+	//	modelViewMatrixStack.Translate(vEye);
+	//	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	//	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	//	m_pSkybox->Render(cubeMapTextureUnit);
+	//	pMainProgram->SetUniform("renderSkybox", false);
+	//modelViewMatrixStack.Pop();
 
 	// Render the planar terrain
 	//modelViewMatrixStack.Push();
@@ -326,34 +326,140 @@ void Game::Render()
 
 	// world light
 	pSpotlightProgram->SetUniform("light1.position", viewMatrix * lightPosition1); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("light1.La", glm::vec3(0.2f));
-	pSpotlightProgram->SetUniform("light1.Ld", glm::vec3(0.2f));
-	pSpotlightProgram->SetUniform("light1.Ls", glm::vec3(0.2f));
+	pSpotlightProgram->SetUniform("light1.La", glm::vec3(0.1f));
+	pSpotlightProgram->SetUniform("light1.Ld", glm::vec3(0.1f));
+	pSpotlightProgram->SetUniform("light1.Ls", glm::vec3(0.1f));
 	pSpotlightProgram->SetUniform("material1.shininess", 15.0f);
+	pSpotlightProgram->SetUniform("material1.Ma", glm::vec3(1.0f));	// Ambient material reflectance
+	pSpotlightProgram->SetUniform("material1.Md", glm::vec3(0.0f));	// Diffuse material reflectance
+	pSpotlightProgram->SetUniform("material1.Ms", glm::vec3(0.0f));	// Specular material reflectance
+
+
+	pSpotlightProgram->SetUniform("CubeMapTex", cubeMapTextureUnit);
+	modelViewMatrixStack.Push();
+		pSpotlightProgram->SetUniform("renderSkybox", true);
+		// Translate the modelview matrix to the camera eye point so skybox stays centred around camera
+		glm::vec3 vEye = m_pCamera->GetPosition();
+		modelViewMatrixStack.Translate(vEye);
+		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pSkybox->Render(cubeMapTextureUnit);
+		pSpotlightProgram->SetUniform("renderSkybox", false);
+	modelViewMatrixStack.Pop();
+
+
+
+
 	pSpotlightProgram->SetUniform("material1.Ma", glm::vec3(0.5f));
 	pSpotlightProgram->SetUniform("material1.Md", glm::vec3(0.5f));
 	pSpotlightProgram->SetUniform("material1.Ms", glm::vec3(1.0f));
 
+	glm::vec3 white = glm::vec3(5.f);
+	glm::vec3 red = glm::vec3(0.949, 0.050, 0.356) * 5.f;
+	glm::vec3 green = glm::vec3(0.450, 0.941, 0.078) * 5.f;
+	glm::vec3 blue = glm::vec3(0.078, 0.262, 0.941) * 5.f;
+	glm::vec3 teal = glm::vec3(0.f, 5.f, 5.f);
+	glm::vec3 pink = glm::vec3(1, 0.321, 0.745) * 8.f;
+	glm::vec3 purple = glm::vec3(0.450, 0.141, 0.898) * 5.f;
+
+
+	
+
 	// Set light and materials in spotlight programme
-	//glm::vec4 spotlightPosition1(m_pCamera->GetPosition(), 1);
-	glm::vec4 spotlightPosition1(23, 88, 438, 1);
-	pSpotlightProgram->SetUniform("spotlight[0].position", viewMatrix * spotlightPosition1); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[0].Ld", glm::vec3(4.0f, 0.f, 4.f));			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[0].Ls", glm::vec3(4.0f, 0.f, 4.f));			// Specular colour of light
+	glm::vec4 starshipFrontLightPosition(m_starshipFrontLightPosition, 1);
+	pSpotlightProgram->SetUniform("spotlight[0].position", viewMatrix* starshipFrontLightPosition); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[0].Ld", glm::vec3(1.f));			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[0].Ls", glm::vec3(1.f));			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[0].direction", glm::normalize(viewNormalMatrix* m_starship_B * glm::vec3(0, 0, -1)));
+	pSpotlightProgram->SetUniform("spotlight[0].exponent", 40.f); // the blend between outer circle and environment
+	pSpotlightProgram->SetUniform("spotlight[0].cutoff", 15.f); // size of circle
 
-	pSpotlightProgram->SetUniform("spotlight[0].direction", glm::normalize(viewNormalMatrix * glm::vec3(0, 1, -1)));
-	pSpotlightProgram->SetUniform("spotlight[0].exponent", 20.0f);
-	pSpotlightProgram->SetUniform("spotlight[0].cutoff", 30.0f);
+	pSpotlightProgram->SetUniform("spotlight[1].position", viewMatrix * glm::vec4(-1018, 20 - 120, 489, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[1].Ld", teal);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[1].Ls", teal);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[1].direction", glm::normalize(viewNormalMatrix * glm::vec3(0, 1, 0)));
+	pSpotlightProgram->SetUniform("spotlight[1].exponent", 5.f); // the blend between outer circle and environment
+	pSpotlightProgram->SetUniform("spotlight[1].cutoff", 30.f); // size of circle
 
-	glm::vec4 spotlightPosition2(200, 88, 438, 1);
-	//glm::vec4 spotlightPosition2(m_pCamera->GetPosition() , 1);
-	pSpotlightProgram->SetUniform("spotlight[1].position", viewMatrix* spotlightPosition2); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[1].Ld", glm::vec3(0.0f, 0.f, 4.f));			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[1].Ls", glm::vec3(0.0f, 0.f, 4.f));			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[2].position", viewMatrix * glm::vec4(-1304, 60-120, 145, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[2].Ld", white);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[2].Ls", white);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[2].direction", glm::normalize(viewNormalMatrix * glm::vec3(0, 1, 0)));
+	pSpotlightProgram->SetUniform("spotlight[2].exponent", 5.f); // the blend between outer circle and environment
+	pSpotlightProgram->SetUniform("spotlight[2].cutoff", 30.f); // size of circle
 
-	pSpotlightProgram->SetUniform("spotlight[1].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, -1)));
-	pSpotlightProgram->SetUniform("spotlight[1].exponent", 20.0f);
-	pSpotlightProgram->SetUniform("spotlight[1].cutoff", 30.0f);
+	pSpotlightProgram->SetUniform("spotlight[3].position", viewMatrix* glm::vec4(-1221, 104-120, 26, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[3].Ld", white);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[3].Ls", white);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[3].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
+	pSpotlightProgram->SetUniform("spotlight[3].exponent", 5.f); // the blend between outer circle and environment
+	pSpotlightProgram->SetUniform("spotlight[3].cutoff", 30.f); // size of circle
+
+	pSpotlightProgram->SetUniform("spotlight[4].position", viewMatrix* glm::vec4(-1180, 60-120, -129, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[4].Ld", white);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[4].Ls", white);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[4].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
+	pSpotlightProgram->SetUniform("spotlight[4].exponent", 5.f); // the blend between outer circle and environment
+	pSpotlightProgram->SetUniform("spotlight[4].cutoff", 30.f); // size of circle
+
+	pSpotlightProgram->SetUniform("spotlight[5].position", viewMatrix* glm::vec4(-779, 20 - 120, -198, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[5].Ld", pink);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[5].Ls", pink);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[5].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
+	pSpotlightProgram->SetUniform("spotlight[5].exponent", 5.f); // the blend between outer circle and environment
+	pSpotlightProgram->SetUniform("spotlight[5].cutoff", 30.f); // size of circle
+
+	pSpotlightProgram->SetUniform("spotlight[6].position", viewMatrix* glm::vec4(-600, 132 - 120, -79, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[6].Ld", green);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[6].Ls", green);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[6].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
+	pSpotlightProgram->SetUniform("spotlight[6].exponent", 5.f); // the blend between outer circle and environment
+	pSpotlightProgram->SetUniform("spotlight[6].cutoff", 30.f); // size of circle
+
+	pSpotlightProgram->SetUniform("spotlight[7].position", viewMatrix* glm::vec4(-462, 245 - 120, -256, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[7].Ld", blue);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[7].Ls", blue);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[7].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
+	pSpotlightProgram->SetUniform("spotlight[7].exponent", 5.f); // the blend between outer circle and environment
+	pSpotlightProgram->SetUniform("spotlight[7].cutoff", 30.f); // size of circle
+
+	pSpotlightProgram->SetUniform("spotlight[8].position", viewMatrix* glm::vec4(-613, 211 - 120, -461, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[8].Ld", purple);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[8].Ls", purple);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[8].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
+	pSpotlightProgram->SetUniform("spotlight[8].exponent", 5.f); // the blend between outer circle and environment
+	pSpotlightProgram->SetUniform("spotlight[8].cutoff", 30.f); // size of circle
+
+	pSpotlightProgram->SetUniform("spotlight[9].position", viewMatrix* glm::vec4(-720, 15 - 120, -617, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[9].Ld", teal);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[9].Ls", teal);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[9].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
+	pSpotlightProgram->SetUniform("spotlight[9].exponent", 5.f); // the blend between outer circle and environment
+	pSpotlightProgram->SetUniform("spotlight[9].cutoff", 30.f); // size of circle
+
+	glm::vec4 spotlightPosition8(23, 88, 438, 1);
+	pSpotlightProgram->SetUniform("spotlight[29].position", viewMatrix * spotlightPosition8); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[29].Ld", glm::vec3(4.0f, 0.f, 4.f));			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[29].Ls", glm::vec3(4.0f, 0.f, 4.f));			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[29].direction", glm::normalize(viewNormalMatrix * glm::vec3(0, 1, -1)));
+	pSpotlightProgram->SetUniform("spotlight[29].exponent", 20.0f);
+	pSpotlightProgram->SetUniform("spotlight[29].cutoff", 30.0f);
+
+	//glm::vec4 spotlightPosition3(m_starshipBackLightPosition, 1);
+	//pSpotlightProgram->SetUniform("spotlight[2].position", viewMatrix* spotlightPosition3); // Light position in eye coordinates
+	//pSpotlightProgram->SetUniform("spotlight[2].Ld", glm::vec3(4.0f, 0.f, 0.f));			// Diffuse colour of light
+	//pSpotlightProgram->SetUniform("spotlight[2].Ls", glm::vec3(4.0f, 0.f, 0.f));			// Specular colour of light
+
+	//pSpotlightProgram->SetUniform("spotlight[2].direction", glm::normalize(viewNormalMatrix* m_starship_B * glm::vec3(0, -1, 1)));
+	//pSpotlightProgram->SetUniform("spotlight[2].exponent", 20.0f);
+	//pSpotlightProgram->SetUniform("spotlight[2].cutoff", 30.0f);
+
+	glm::vec4 pointlightPosition(m_starshipBackLightPosition, 1);
+	//glm::vec4 pointlightPosition(m_pCamera->GetPosition() , 1);
+	pSpotlightProgram->SetUniform("pointlight.position", viewMatrix* pointlightPosition); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("pointlight.Ld", glm::vec3(1.f, 0.f, 0.f));			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("pointlight.Ls", glm::vec3(1.f, 0.f, 0.f));			// Specular colour of light
+
 
 
 
@@ -516,6 +622,8 @@ void Game::Update()
 	glm::vec3 cam_N = glm::normalize(glm::cross(cam_T, p_y)); //(x axis)
 	glm::vec3 cam_B = glm::normalize(glm::cross(cam_N, cam_T)); //(y axis)
 
+	m_starship_B = cam_B;
+
 	glm::vec3 up = glm::rotate(glm::vec3(0, 1, 0), m_starshipStrafe, cam_T);
 
 	if (!m_freeview) {
@@ -530,6 +638,8 @@ void Game::Update()
 		}
 	}
 
+	m_starshipFrontLightPosition = p + (2.9f * cam_B) + (m_starshipStrafe * cam_N) + (2.f * cam_T);
+	m_starshipBackLightPosition = p + (3.8f * cam_B) + (m_starshipStrafe * cam_N) + (-9.f * cam_T);
 	m_starshipPosition = p + (2.9f * cam_B) + (m_starshipStrafe * cam_N);
 	m_starshipOrientation = glm::mat4(glm::mat3(cam_T, cam_B, cam_N)); 
 
