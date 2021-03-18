@@ -136,12 +136,17 @@ void main()
 	}
 
 	if(fogOn){
-		float maxDist = 3000;
-		float minDist = 100;
-		float dist = abs(p.z);
-		float fogFactor = (maxDist - dist) / (maxDist - minDist);
-		fogFactor = clamp(fogFactor, 0.0, 1.0);
+		//float maxDist = 3000;
+		//float minDist = 100;
+		//float dist = length(p.xyz);
+		//float fogFactor = (maxDist - dist) / (maxDist - minDist);
+		//fogFactor = clamp(fogFactor, 0.0, 1.0);
 
-		vOutputColour.rgb = mix(vec3(0.5), vOutputColour.rgb, fogFactor);
+		//vOutputColour.rgb = mix(vec3(0.5), vOutputColour.rgb, fogFactor);
+
+		float dist = length(p.xyz);
+		float w = exp(-0.0007f * dist);
+
+		vOutputColour.rgb = mix(vec3(0.5), vOutputColour.rgb, w);
 	}
 }
