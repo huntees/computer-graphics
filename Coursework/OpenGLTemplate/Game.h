@@ -92,6 +92,9 @@ private:
 	glm::vec3 m_starshipBackLightPosition;
 	glm::mat4 m_starshipOrientation;
 	float m_starshipStrafe;
+	glm::vec3 m_starship_B;
+
+	bool m_headlightOn;
 
 	int m_cameraMode;
 	bool m_freeview;
@@ -99,9 +102,18 @@ private:
 	bool m_showPath;
 	const float m_topSpeed = 0.2f;
 
-	glm::vec3 m_starship_B;
+	bool m_fogOn;
 
-	const float HOVER_TIME = 1.5f;
-	float hover_timer{ HOVER_TIME };
-	float hover_timer2{ HOVER_TIME };
+	//light colours
+	glm::vec3 headlightColour;
+	const glm::vec3 white = glm::vec3(5.f);
+	const glm::vec3 red = glm::vec3(1, 0.050, 0.280) * 5.f;
+	const glm::vec3 green = glm::vec3(0.450, 0.941, 0.078) * 5.f;
+	const glm::vec3 blue = glm::vec3(0.078, 0.262, 0.941) * 5.f;
+	const glm::vec3 teal = glm::vec3(0.f, 5.f, 5.f);
+	const glm::vec3 aqua = glm::vec3(0.043f, 0.796f, 0.486f) * 5.f;
+	const glm::vec3 pink = glm::vec3(1, 0.321, 0.745) * 8.f;
+	const glm::vec3 purple = glm::vec3(0.450, 0.141, 0.898) * 5.f;
+	const glm::vec3 yellow = glm::vec3(0.996, 0.803, 0.403) * 5.f;
+	
 };

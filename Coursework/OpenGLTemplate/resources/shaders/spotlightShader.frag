@@ -5,6 +5,8 @@ in vec2 vTexCoord;			// Interpolated texture coordinate using texture coordinate
 uniform sampler2D sampler0;  // The texture sampler
 uniform samplerCube CubeMapTex;
 
+uniform bool fogOn;
+
 out vec4 vOutputColour;
 
 in vec3 n;
@@ -31,7 +33,7 @@ struct MaterialInfo
 
 uniform LightInfo light1; 
 uniform LightInfo pointlight; 
-uniform LightInfo spotlight[30]; 
+uniform LightInfo spotlight[50]; 
 
 uniform MaterialInfo material1; 
 
@@ -111,23 +113,17 @@ vec3 PointlightModel(LightInfo light, vec4 p, vec3 n)
 
 void main()
 {	
-	float maxDist = 2800;
-	float minDist = 1;
-	float dist = abs(p.z);
-	float fogFactor = (maxDist - dist) / (maxDist - minDist);
-	fogFactor = clamp(fogFactor, 0.0, 1.0);
 
 	if (renderSkybox) {
 		vOutputColour = texture(CubeMapTex, worldPosition);
 
-		//vOutputColour.rgb = mix(vec3(0.5), vOutputColour.rgb, fogFactor);
 
 	} else {
 		vec3 vColour = PhongModel(p, normalize(n));
 
 		vColour += PointlightModel(pointlight, p, normalize(n));
 
-		for (int i = 0 ; i < 30 ; i++) { 
+		for (int i = 0 ; i < 50 ; i++) { 
 			vColour += BlinnPhongSpotlightModel(spotlight[i], p, normalize(n));
 		}
 
@@ -137,7 +133,15 @@ void main()
 
 		vOutputColour = vTexColour*vec4(vColour, 1);
 
+	}
+
+	if(fogOn){
+		float maxDist = 3000;
+		float minDist = 100;
+		float dist = abs(p.z);
+		float fogFactor = (maxDist - dist) / (maxDist - minDist);
+		fogFactor = clamp(fogFactor, 0.0, 1.0);
+
 		vOutputColour.rgb = mix(vec3(0.5), vOutputColour.rgb, fogFactor);
 	}
-	
 }
