@@ -79,6 +79,8 @@ private:
 	int m_frameCount;
 	double m_elapsedTime;
 
+	void RenderLights(CShaderProgram* pSpotlightProgram, glm::mat4 viewMatrix, glm::mat3 viewNormalMatrix);
+
 	float m_t;
 	glm::vec3 m_spaceShipPosition;
 	glm::mat4 m_spaceShipOrientation;
@@ -107,7 +109,7 @@ private:
 	//light colours
 	glm::vec3 headlightColour;
 	const glm::vec3 white = glm::vec3(5.f);
-	const glm::vec3 red = glm::vec3(1, 0.050, 0.280) * 5.f;
+	const glm::vec3 red = glm::vec3(1, 0.050, 0.2) * 5.f;
 	const glm::vec3 green = glm::vec3(0.450, 0.941, 0.078) * 5.f;
 	const glm::vec3 blue = glm::vec3(0.078, 0.262, 0.941) * 5.f;
 	const glm::vec3 teal = glm::vec3(0.f, 5.f, 5.f);
@@ -115,5 +117,6 @@ private:
 	const glm::vec3 pink = glm::vec3(1, 0.321, 0.745) * 8.f;
 	const glm::vec3 purple = glm::vec3(0.450, 0.141, 0.898) * 5.f;
 	const glm::vec3 yellow = glm::vec3(0.996, 0.803, 0.403) * 5.f;
+	const glm::vec3 magenta = glm::vec3(1, 0, 1) * 4.f;
 	
 };

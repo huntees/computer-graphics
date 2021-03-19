@@ -33,7 +33,7 @@ struct MaterialInfo
 
 uniform LightInfo light1; 
 uniform LightInfo pointlight; 
-uniform LightInfo spotlight[50]; 
+uniform LightInfo spotlight[80]; 
 
 uniform MaterialInfo material1; 
 
@@ -123,7 +123,7 @@ void main()
 
 		vColour += PointlightModel(pointlight, p, normalize(n));
 
-		for (int i = 0 ; i < 50 ; i++) { 
+		for (int i = 0 ; i < 80 ; i++) { 
 			vColour += BlinnPhongSpotlightModel(spotlight[i], p, normalize(n));
 		}
 
