@@ -33,7 +33,7 @@ struct MaterialInfo
 
 uniform LightInfo light1; 
 uniform LightInfo pointlight; 
-uniform LightInfo spotlight[80]; 
+uniform LightInfo spotlight[65]; 
 
 uniform MaterialInfo material1; 
 
@@ -63,32 +63,70 @@ vec3 PhongModel(vec4 p, vec3 n)
 
 }
 
+vec3 m_s;
+float m_dist;
+float m_angle;
+float m_cutoff;
+
+float m_spotFactor;
+vec3 m_v;
+vec3 m_h;
+float m_sDotN;
+vec3 m_diffuse;
+vec3 m_specular;
+
 vec3 BlinnPhongSpotlightModel(LightInfo light, vec4 p, vec3 n)
 {
-	vec3 s = normalize(vec3(light.position - p));
-	float dist = length(vec3(p - light.position));
-	float angle = acos(dot(-s, light.direction));
-	float cutoff = radians(clamp(light.cutoff, 0.0, 90.0));
-	vec3 ambient = light.La * material1.Ma;
+	m_s = normalize(vec3(light.position - p));
+	m_dist = length(vec3(p - light.position));
+	m_angle= acos(dot(-m_s, light.direction));
+	m_cutoff = radians(clamp(light.cutoff, 0.0, 90.0));
 
-	if (angle < cutoff) {
-		float spotFactor = pow(dot(-s, light.direction), light.exponent);
-		vec3 v = normalize(-p.xyz);
-		vec3 h = normalize(v + s);
-		float sDotN = max(dot(s, n), 0.0);
-		vec3 diffuse = light.Ld * material1.Md * sDotN;
-		vec3 specular = vec3(0.0);
+	if (m_angle < m_cutoff) {
+		m_spotFactor = pow(dot(-m_s, light.direction), light.exponent);
+		m_v = normalize(-p.xyz);
+		m_h = normalize(m_v + m_s);
+		m_sDotN = max(dot(m_s, n), 0.0);
+		m_diffuse = light.Ld * m_sDotN;
+		m_specular = vec3(0.0);
 
-		if (sDotN > 0.0) {
-			specular = light.Ls * material1.Ms * pow(max(dot(h, n), 0.0), material1.shininess);
+		if (m_sDotN > 0.0) {
+			m_specular = light.Ls * pow(max(dot(m_h, n), 0.0), material1.shininess);
 		}
 
-	return (ambient + spotFactor * ((diffuse + specular)  / (dist * 0.008)));
+	return (m_spotFactor * ((m_diffuse + m_specular)  / (m_dist * 0.008)));
 	}
 	else {
-		return ambient;
+		return vec3(0);
 	}
 }
+
+//vec3 BlinnPhongSpotlightModel(LightInfo light, vec4 p, vec3 n)
+//{
+//	vec3 s = normalize(vec3(light.position - p));
+//	float dist = length(vec3(p - light.position));
+//	float angle = acos(dot(-s, light.direction));
+//	float cutoff = radians(clamp(light.cutoff, 0.0, 90.0));
+//	vec3 ambient = light.La * material1.Ma;
+//
+//	if (angle < cutoff) {
+//		float spotFactor = pow(dot(-s, light.direction), light.exponent);
+//		vec3 v = normalize(-p.xyz);
+//		vec3 h = normalize(v + s);
+//		float sDotN = max(dot(s, n), 0.0);
+//		vec3 diffuse = light.Ld * material1.Md * sDotN;
+//		vec3 specular = vec3(0.0);
+//
+//		if (sDotN > 0.0) {
+//			specular = light.Ls * material1.Ms * pow(max(dot(h, n), 0.0), material1.shininess);
+//		}
+//
+//	return (ambient + spotFactor * ((diffuse + specular)  / (dist * 0.008)));
+//	}
+//	else {
+//		return ambient;
+//	}
+//}
 
 vec3 PointlightModel(LightInfo light, vec4 p, vec3 n)
 {
@@ -119,17 +157,17 @@ void main()
 
 
 	} else {
-		vec3 vColour = PhongModel(p, normalize(n));
 
-		vColour += PointlightModel(pointlight, p, normalize(n));
+		vec3 normalised_n = normalize(n);
+		vec3 vColour = PhongModel(p, normalised_n);
 
-		for (int i = 0 ; i < 80 ; i++) { 
-			vColour += BlinnPhongSpotlightModel(spotlight[i], p, normalize(n));
+		vColour += PointlightModel(pointlight, p, normalised_n);
+
+		for (int i = 0 ; i < 63 ; i++) { 
+			vColour += BlinnPhongSpotlightModel(spotlight[i], p, normalised_n);
 		}
 
 		vec4 vTexColour = texture(sampler0, vTexCoord);	
-
-
 
 		vOutputColour = vTexColour*vec4(vColour, 1);
 
