@@ -2,6 +2,7 @@
 
 #include "Common.h"
 #include "GameWindow.h"
+#include "MatrixStack.h"
 
 // Classes used in game.  For a new class, declare it here and provide a pointer to an object of this class below.  Then, in Game.cpp, 
 // include the header.  In the Game constructor, set the pointer to NULL and in Game::Initialise, create a new object.  Don't forget to 
@@ -45,11 +46,17 @@ private:
 	COpenAssetImportMesh* m_pDowntown;
 
 	COpenAssetImportMesh* m_pStarship;
+	COpenAssetImportMesh* m_pTransport;
+	COpenAssetImportMesh* m_pFreighter;
+	COpenAssetImportMesh* m_pFlyingCar;
+	COpenAssetImportMesh* m_pPoliceCar;
+	COpenAssetImportMesh* m_pPatrolCar;
 
 
 	COpenAssetImportMesh* m_pMan;
 
 	void HandleMovement();
+	void HandleEnvShips();
 
 	// Some other member variables
 	double m_dt;
@@ -80,6 +87,9 @@ private:
 	double m_elapsedTime;
 
 	void RenderLights(CShaderProgram* pSpotlightProgram, glm::mat4 viewMatrix, glm::mat3 viewNormalMatrix);
+	void RenderEnvCars(CShaderProgram* pSpotlightProgram, glm::vec3 EnvStarshipPosition, glm::mat4 EnvStarshipOrientation);
+
+	glutil::MatrixStack modelViewMatrixStack;
 
 	float m_t;
 	glm::vec3 m_spaceShipPosition;
@@ -105,6 +115,27 @@ private:
 	const float m_topSpeed = 0.2f;
 
 	bool m_fogOn;
+
+
+	float m_EnvCurrentDistance;
+	glm::vec3 m_EnvStarshipPosition;
+	glm::mat4 m_EnvStarshipOrientation;
+
+	glm::vec3 m_EnvStarshipPosition2;
+	glm::mat4 m_EnvStarshipOrientation2;
+
+	glm::vec3 m_EnvStarshipPosition3;
+	glm::mat4 m_EnvStarshipOrientation3;
+
+	glm::vec3 m_EnvStarshipPosition4;
+	glm::mat4 m_EnvStarshipOrientation4;
+
+	glm::vec3 m_EnvStarshipPosition5;
+	glm::mat4 m_EnvStarshipOrientation5;
+
+	glm::vec3 m_EnvStarshipPosition6;
+	glm::mat4 m_EnvStarshipOrientation6;
+
 
 	//light colours
 	glm::vec3 headlightColour;

@@ -31,14 +31,6 @@ glm::vec3 CCatmullRom::Interpolate(glm::vec3& p0, glm::vec3& p1, glm::vec3& p2, 
 void CCatmullRom::SetControlPoints()
 {
 	// Set control points (m_controlPoints) here, or load from disk
-	//m_controlPoints.push_back(glm::vec3(100 + 300, 200, 0));
-	//m_controlPoints.push_back(glm::vec3(71 + 300, 200, 71));
-	//m_controlPoints.push_back(glm::vec3(0 + 300, 200, 100));
-	//m_controlPoints.push_back(glm::vec3(-71 + 300, 200, 71));
-	//m_controlPoints.push_back(glm::vec3(-100 + 300, 200, 0));
-	//m_controlPoints.push_back(glm::vec3(-71 + 300, 200, -71 - 300));
-	//m_controlPoints.push_back(glm::vec3(0 + 300, 200, -100 - 300));
-	//m_controlPoints.push_back(glm::vec3(71 + 300, 200, -71 - 300));
 	m_controlPoints.push_back(glm::vec3(483, 420, 1992)); 
 	m_controlPoints.push_back(glm::vec3(420, 360, 1803));
 	m_controlPoints.push_back(glm::vec3(336, 300, 1585));
@@ -570,3 +562,192 @@ int CCatmullRom::CurrentLap(float d)
 }
 
 glm::vec3 CCatmullRom::_dummy_vector(0.0f, 0.0f, 0.0f);
+
+
+
+//Code Duplication here, can refactor the above to take in arguments for multiple splines. In order to not break the above code, the following ones are used 
+//for environment ships for the moment.
+
+// Determine lengths along the control points, which is the set of control points forming the closed curve
+void CCatmullRom::Env_ComputeLengthsAlongControlPoints()
+{
+	int M = (int)env_controlPoints.size();
+
+	float fAccumulatedLength = 0.0f;
+	env_distances.push_back(fAccumulatedLength);
+	for (int i = 1; i < M; i++) {
+		fAccumulatedLength += glm::distance(env_controlPoints[i - 1], env_controlPoints[i]);
+		env_distances.push_back(fAccumulatedLength);
+	}
+
+	// Get the distance from the last point to the first
+	fAccumulatedLength += glm::distance(env_controlPoints[M - 1], env_controlPoints[0]);
+	env_distances.push_back(fAccumulatedLength);
+}
+
+
+// Return the point (and upvector, if control upvectors provided) based on a distance d along the control polygon
+bool CCatmullRom::Env_Sample(float d, glm::vec3& p, glm::vec3& up)
+{
+	if (d < 0)
+		return false;
+
+	int M = (int)env_controlPoints.size();
+	if (M == 0)
+		return false;
+
+
+	float fTotalLength = env_distances[env_distances.size() - 1];
+
+	// The the current length along the control polygon; handle the case where we've looped around the track
+	float fLength = d - (int)(d / fTotalLength) * fTotalLength;
+
+	// Find the current segment
+	int j = -1;
+	for (int i = 0; i < (int)env_distances.size() - 1; i++) {
+		if (fLength >= env_distances[i] && fLength < env_distances[i + 1]) {
+			j = i; // found it!
+			break;
+		}
+	}
+
+	if (j == -1)
+		return false;
+
+	// Interpolate on current segment -- get t
+	float fSegmentLength = env_distances[j + 1] - env_distances[j];
+	float t = (fLength - env_distances[j]) / fSegmentLength;
+
+	// Get the indices of the four points along the control polygon for the current segment
+	int iPrev = ((j - 1) + M) % M;
+	int iCur = j;
+	int iNext = (j + 1) % M;
+	int iNextNext = (j + 2) % M;
+
+	// Interpolate to get the point (and upvector)
+	p = Interpolate(env_controlPoints[iPrev], env_controlPoints[iCur], env_controlPoints[iNext], env_controlPoints[iNextNext], t);
+	if (env_controlUpVectors.size() == env_controlPoints.size())
+		up = glm::normalize(Interpolate(env_controlUpVectors[iPrev], env_controlUpVectors[iCur], env_controlUpVectors[iNext], env_controlUpVectors[iNextNext], t));
+
+	return true;
+}
+
+
+
+// Sample a set of control points using an open Catmull-Rom spline, to produce a set of iNumSamples that are (roughly) equally spaced
+void CCatmullRom::Env_UniformlySampleControlPoints(int numSamples)
+{
+	glm::vec3 p, up;
+
+	// Compute the lengths of each segment along the control polygon, and the total length
+	Env_ComputeLengthsAlongControlPoints();
+	float fTotalLength = env_distances[env_distances.size() - 1];
+
+	// The spacing will be based on the control polygon
+	float fSpacing = fTotalLength / numSamples;
+
+	// Call PointAt to sample the spline, to generate the points
+	for (int i = 0; i < numSamples; i++) {
+		Env_Sample(i * fSpacing, p, up);
+		env_centrelinePoints.push_back(p);
+		if (env_controlUpVectors.size() > 0)
+			env_centrelineUpVectors.push_back(up);
+
+	}
+
+
+	// Repeat once more for truly equidistant points
+	env_controlPoints = env_centrelinePoints;
+	env_controlUpVectors = env_centrelineUpVectors;
+	env_centrelinePoints.clear();
+	env_centrelineUpVectors.clear();
+	env_distances.clear();
+	Env_ComputeLengthsAlongControlPoints();
+	fTotalLength = env_distances[env_distances.size() - 1];
+	fSpacing = fTotalLength / numSamples;
+	for (int i = 0; i < numSamples; i++) {
+		Env_Sample(i * fSpacing, p, up);
+		env_centrelinePoints.push_back(p);
+		if (env_controlUpVectors.size() > 0)
+			env_centrelineUpVectors.push_back(up);
+	}
+
+
+}
+
+
+
+void CCatmullRom::Env_CreateCentreline()
+{
+	// Call Set Control Points
+	Env_SetControlPoints();
+
+	// Call UniformlySampleControlPoints with the number of samples required
+	Env_UniformlySampleControlPoints(500);
+
+	// Create a VAO called m_vaoCentreline and a VBO to get the points onto the graphics card
+	glGenVertexArrays(1, &env_vaoCentreline);
+	glBindVertexArray(env_vaoCentreline);
+
+	// Create a VBO
+	CVertexBufferObject vbo;
+	vbo.Create();
+	vbo.Bind();
+
+	glm::vec2 texCoord(0.0f, 0.0f);
+	glm::vec3 normal(0.0f, 1.0f, 0.0f);
+	for (unsigned int i = 0; i < env_centrelinePoints.size(); i++) {
+
+		vbo.AddData(&env_centrelinePoints[i], sizeof(glm::vec3));
+		vbo.AddData(&texCoord, sizeof(glm::vec2));
+		vbo.AddData(&normal, sizeof(glm::vec3));
+	}
+
+	// Upload the VBO to the GPU
+	vbo.UploadDataToGPU(GL_STATIC_DRAW);
+
+	// Set the vertex attribute locations
+	GLsizei stride = 2 * sizeof(glm::vec3) + sizeof(glm::vec2);
+
+	// Vertex positions
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, 0);
+
+	// Texture coordinates
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)sizeof(glm::vec3));
+
+	// Normal vectors
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, (void*)(sizeof(glm::vec3) + sizeof(glm::vec2)));
+}
+
+void CCatmullRom::Env_SetControlPoints()
+{
+	// Set control points (m_controlPoints) here, or load from disk
+	env_controlPoints.push_back(glm::vec3(1172, 41, -158));
+	env_controlPoints.push_back(glm::vec3(345, 44, -626));
+	env_controlPoints.push_back(glm::vec3(117, 96, -1045));
+	env_controlPoints.push_back(glm::vec3(224, 85, -1210));
+	env_controlPoints.push_back(glm::vec3(1274, 127, -567));
+	env_controlPoints.push_back(glm::vec3(1413, 234, -732));
+	env_controlPoints.push_back(glm::vec3(1774, 284, -1114));
+	env_controlPoints.push_back(glm::vec3(2303, 275, -651));
+	env_controlPoints.push_back(glm::vec3(2076, 235, -161));
+	env_controlPoints.push_back(glm::vec3(1684, 231, 245));
+	env_controlPoints.push_back(glm::vec3(1274, 202, 426));
+	
+
+
+	env_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	env_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	env_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	env_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	env_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	env_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	env_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	env_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	env_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	env_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+	env_controlUpVectors.push_back(glm::vec3(0, 1, 0));
+}

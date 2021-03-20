@@ -24,12 +24,19 @@ public:
 
 	bool Sample(float d, glm::vec3& p, glm::vec3& up = _dummy_vector); // Return a point on the centreline based on a certain distance along the control curve.
 
+	void Env_CreateCentreline();
+	bool Env_Sample(float d, glm::vec3& p, glm::vec3& up = _dummy_vector);
+
 private:
 
 	void SetControlPoints();
 	void ComputeLengthsAlongControlPoints();
 	void UniformlySampleControlPoints(int numSamples);
 	glm::vec3 Interpolate(glm::vec3& p0, glm::vec3& p1, glm::vec3& p2, glm::vec3& p3, float t);
+
+	void Env_SetControlPoints();
+	void Env_ComputeLengthsAlongControlPoints();
+	void Env_UniformlySampleControlPoints(int numSamples);
 
 
 	vector<float> m_distances;
@@ -51,4 +58,12 @@ private:
 
 
 	unsigned int m_vertexCount;				// Number of vertices in the track VBO
+
+
+	vector<glm::vec3> env_controlPoints;
+	vector<glm::vec3> env_controlUpVectors;	// Control upvectors, which are interpolated to produce the centreline upvectors
+	vector<glm::vec3> env_centrelinePoints;	// Centreline points
+	vector<glm::vec3> env_centrelineUpVectors;// Centreline upvectors
+	vector<float> env_distances;
+	GLuint env_vaoCentreline;
 };

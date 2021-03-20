@@ -131,6 +131,11 @@ void Game::Initialise()
 	m_pDowntown = new COpenAssetImportMesh;
 
 	m_pStarship = new COpenAssetImportMesh;
+	m_pTransport = new COpenAssetImportMesh;
+	m_pFreighter = new COpenAssetImportMesh;
+	m_pFlyingCar = new COpenAssetImportMesh;
+	m_pPoliceCar = new COpenAssetImportMesh;
+	m_pPatrolCar = new COpenAssetImportMesh;
 
 	m_pMan = new COpenAssetImportMesh;
 
@@ -153,6 +158,7 @@ void Game::Initialise()
 
 	m_starshipPosition = glm::vec3(0.f);
 	m_starshipOrientation = glm::mat4(1);
+
 
 	RECT dimensions = m_gameWindow.GetDimensions();
 
@@ -231,6 +237,11 @@ void Game::Initialise()
 	m_pDowntown->Load("resources\\models\\Downtown\\downtown.obj");
 
 	m_pStarship->Load("resources\\models\\Starship\\Starship.obj");
+	m_pTransport->Load("resources\\models\\Transport\\transport.obj");
+	m_pFreighter->Load("resources\\models\\Freighter\\freighter.obj");
+	m_pFlyingCar->Load("resources\\models\\FlyingCar\\FlyingCar.obj");
+	m_pPoliceCar->Load("resources\\models\\PoliceCar\\policecar.obj");
+	m_pPatrolCar->Load("resources\\models\\PatrolCar\\PatrolCar.obj");
 
 	m_pMan->Load("resources\\models\\Man\\man.obj");
 
@@ -250,6 +261,8 @@ void Game::Initialise()
 	m_pCatmullRom->CreateCentreline();
 	m_pCatmullRom->CreateOffsetCurves(m_routeWidth);
 	m_pCatmullRom->CreateTrack("resources\\textures\\grid.png");
+
+	m_pCatmullRom->Env_CreateCentreline();
 }
 
 // Render method runs repeatedly in a loop
@@ -263,63 +276,20 @@ void Game::Render()
 	glEnable(GL_CULL_FACE);
 
 	// Set up a matrix stack
-	glutil::MatrixStack modelViewMatrixStack;
+	
 	modelViewMatrixStack.SetIdentity();
 
-	// Use the main shader program 
-	CShaderProgram *pMainProgram = (*m_pShaderPrograms)[0];
-	pMainProgram->UseProgram();
-	pMainProgram->SetUniform("bUseTexture", true);
-	pMainProgram->SetUniform("sampler0", 0);
 	// Note: cubemap and non-cubemap textures should not be mixed in the same texture unit.  Setting unit 10 to be a cubemap texture.
 	int cubeMapTextureUnit = 10; 
-	pMainProgram->SetUniform("CubeMapTex", cubeMapTextureUnit);
 	
-
-	// Set the projection matrix
-	pMainProgram->SetUniform("matrices.projMatrix", m_pCamera->GetPerspectiveProjectionMatrix());
-
 	// Call LookAt to create the view matrix and put this on the modelViewMatrix stack. 
 	// Store the view matrix and the normal matrix associated with the view matrix for later (they're useful for lighting -- since lighting is done in eye coordinates)
 	modelViewMatrixStack.LookAt(m_pCamera->GetPosition(), m_pCamera->GetView(), m_pCamera->GetUpVector());
 	glm::mat4 viewMatrix = modelViewMatrixStack.Top();
 	glm::mat3 viewNormalMatrix = m_pCamera->ComputeNormalMatrix(viewMatrix);
 
-	
 	// Set light and materials in main shader program
 	glm::vec4 lightPosition1 = glm::vec4(-100, 100, -100, 1); // Position of light source *in world coordinates*
-	pMainProgram->SetUniform("light1.position", viewMatrix*lightPosition1); // Position of light source *in eye coordinates*
-	pMainProgram->SetUniform("light1.La", glm::vec3(0.8f));		// Ambient colour of light
-	pMainProgram->SetUniform("light1.Ld", glm::vec3(0.8f));		// Diffuse colour of light
-	pMainProgram->SetUniform("light1.Ls", glm::vec3(0.8f));		// Specular colour of light
-	pMainProgram->SetUniform("material1.Ma", glm::vec3(1.0f));	// Ambient material reflectance
-	pMainProgram->SetUniform("material1.Md", glm::vec3(0.0f));	// Diffuse material reflectance
-	pMainProgram->SetUniform("material1.Ms", glm::vec3(0.0f));	// Specular material reflectance
-	pMainProgram->SetUniform("material1.shininess", 15.0f);		// Shininess material property
-
-	// Render the skybox and terrain with full ambient reflectance 
-	//modelViewMatrixStack.Push();
-	//	pMainProgram->SetUniform("renderSkybox", true);
-	//	// Translate the modelview matrix to the camera eye point so skybox stays centred around camera
-	//	glm::vec3 vEye = m_pCamera->GetPosition();
-	//	modelViewMatrixStack.Translate(vEye);
-	//	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-	//	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-	//	m_pSkybox->Render(cubeMapTextureUnit);
-	//	pMainProgram->SetUniform("renderSkybox", false);
-	//modelViewMatrixStack.Pop();
-
-	// Render the planar terrain
-	//modelViewMatrixStack.Push();
-	//	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-	//	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-	//	m_pPlanarTerrain->Render();
-	//modelViewMatrixStack.Pop();
-
-	// Turn on diffuse + specular materials
-	pMainProgram->SetUniform("material1.Ma", glm::vec3(0.5f));	// Ambient material reflectance
-	pMainProgram->SetUniform("material1.Md", glm::vec3(0.5f));	// Diffuse material reflectance
-	pMainProgram->SetUniform("material1.Ms", glm::vec3(1.0f));	// Specular material reflectance	
 
 	// Switch to the spotlight program
 	CShaderProgram* pSpotlightProgram = (*m_pShaderPrograms)[2];
@@ -421,7 +391,14 @@ void Game::Render()
 		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
 		m_pStarship->Render();
 	modelViewMatrixStack.Pop();
-	
+
+	RenderEnvCars(pSpotlightProgram, m_EnvStarshipPosition, m_EnvStarshipOrientation);
+	RenderEnvCars(pSpotlightProgram, m_EnvStarshipPosition2, m_EnvStarshipOrientation2);
+	RenderEnvCars(pSpotlightProgram, m_EnvStarshipPosition3, m_EnvStarshipOrientation3);
+	RenderEnvCars(pSpotlightProgram, m_EnvStarshipPosition4, m_EnvStarshipOrientation4);
+	RenderEnvCars(pSpotlightProgram, m_EnvStarshipPosition5, m_EnvStarshipOrientation5);
+	RenderEnvCars(pSpotlightProgram, m_EnvStarshipPosition6, m_EnvStarshipOrientation6);
+
 	// Render the Man
 	modelViewMatrixStack.Push();
 		modelViewMatrixStack.Translate(glm::vec3(11.0f, 56.f, -840.0f));
@@ -497,7 +474,7 @@ void Game::Render()
 
 	if (m_showPath) {
 
-		//// Render Catmull Spline Route
+		// Render Catmull Spline Route
 		//modelViewMatrixStack.Push();
 		//pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 		//pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
@@ -551,7 +528,7 @@ void Game::Update()
 
 	m_starship_B = cam_B;
 
-	glm::vec3 up = glm::rotate(glm::vec3(0, 1, 0), m_starshipStrafe, cam_T);
+	//glm::vec3 up = glm::rotate(glm::vec3(0, 1, 0), m_starshipStrafe, cam_T);
 
 	if (!m_freeview) {
 		if (m_cameraMode == 1) {
@@ -569,6 +546,8 @@ void Game::Update()
 	m_starshipBackLightPosition = p + (3.8f * cam_B) + (m_starshipStrafe * cam_N) + (-9.f * cam_T);
 	m_starshipPosition = p + (2.9f * cam_B) + (m_starshipStrafe * cam_N);
 	m_starshipOrientation = glm::mat4(glm::mat3(cam_T, cam_B, cam_N)); 
+
+	HandleEnvShips();
 
 	HandleMovement();
 
@@ -588,6 +567,82 @@ void Game::Update()
 	glm::vec3 B = glm::normalize(glm::cross(N, T));
 	
 	m_spaceShipOrientation = glm::mat4(glm::mat3(T, B, N));
+}
+
+void Game::HandleEnvShips() {
+	m_EnvCurrentDistance += 0.05f * m_dt;
+
+	glm::vec3 p;
+	glm::vec3 p_y;
+	m_pCatmullRom->Env_Sample(m_EnvCurrentDistance, p, p_y);
+
+	glm::vec3 pNext;
+	m_pCatmullRom->Env_Sample(m_EnvCurrentDistance + 1.0f, pNext);
+
+	glm::vec3 cam_T = glm::normalize(pNext - p); //(z axis)
+	glm::vec3 cam_N = glm::normalize(glm::cross(cam_T, p_y)); //(x axis)
+	glm::vec3 cam_B = glm::normalize(glm::cross(cam_N, cam_T)); //(y axis)
+
+	m_EnvStarshipPosition = p;
+	m_EnvStarshipOrientation = glm::mat4(glm::mat3(cam_T, cam_B, cam_N));
+
+	//2
+	m_pCatmullRom->Env_Sample(m_EnvCurrentDistance + 800, p, p_y);
+	m_pCatmullRom->Env_Sample(m_EnvCurrentDistance + 801.0f, pNext);
+
+	cam_T = glm::normalize(pNext - p); //(z axis)
+	cam_N = glm::normalize(glm::cross(cam_T, p_y)); //(x axis)
+	cam_B = glm::normalize(glm::cross(cam_N, cam_T)); //(y axis)
+
+	m_EnvStarshipPosition2 = p;
+	m_EnvStarshipOrientation2 = glm::mat4(glm::mat3(cam_T, cam_B, cam_N));
+
+
+	//3
+	m_pCatmullRom->Env_Sample(m_EnvCurrentDistance + 1800, p, p_y);
+	m_pCatmullRom->Env_Sample(m_EnvCurrentDistance + 1801.0f, pNext);
+
+	cam_T = glm::normalize(pNext - p); //(z axis)
+	cam_N = glm::normalize(glm::cross(cam_T, p_y)); //(x axis)
+	cam_B = glm::normalize(glm::cross(cam_N, cam_T)); //(y axis)
+
+	m_EnvStarshipPosition3 = p;
+	m_EnvStarshipOrientation3 = glm::mat4(glm::mat3(cam_T, cam_B, cam_N));
+
+	//4
+	m_pCatmullRom->Env_Sample(m_EnvCurrentDistance + 3000, p, p_y);
+	m_pCatmullRom->Env_Sample(m_EnvCurrentDistance + 3001.0f, pNext);
+
+	cam_T = glm::normalize(pNext - p); //(z axis)
+	cam_N = glm::normalize(glm::cross(cam_T, p_y)); //(x axis)
+	cam_B = glm::normalize(glm::cross(cam_N, cam_T)); //(y axis)
+
+	m_EnvStarshipPosition4 = p;
+	m_EnvStarshipOrientation4 = glm::mat4(glm::mat3(cam_T, cam_B, cam_N));
+
+	//5
+	m_pCatmullRom->Env_Sample(m_EnvCurrentDistance + 4800, p, p_y);
+	m_pCatmullRom->Env_Sample(m_EnvCurrentDistance + 4801.0f, pNext);
+
+	cam_T = glm::normalize(pNext - p); //(z axis)
+	cam_N = glm::normalize(glm::cross(cam_T, p_y)); //(x axis)
+	cam_B = glm::normalize(glm::cross(cam_N, cam_T)); //(y axis)
+
+	m_EnvStarshipPosition5 = p;
+	m_EnvStarshipOrientation5 = glm::mat4(glm::mat3(cam_T, cam_B, cam_N));
+
+	//6
+	m_pCatmullRom->Env_Sample(m_EnvCurrentDistance + 5200, p, p_y);
+	m_pCatmullRom->Env_Sample(m_EnvCurrentDistance + 5201.0f, pNext);
+
+	cam_T = glm::normalize(pNext - p); //(z axis)
+	cam_N = glm::normalize(glm::cross(cam_T, p_y)); //(x axis)
+	cam_B = glm::normalize(glm::cross(cam_N, cam_T)); //(y axis)
+
+	m_EnvStarshipPosition6 = p;
+	m_EnvStarshipOrientation6 = glm::mat4(glm::mat3(cam_T, cam_B, cam_N));
+
+
 }
 
 void Game::HandleMovement() {
@@ -1257,16 +1312,12 @@ void Game::RenderLights(CShaderProgram* pSpotlightProgram, glm::mat4 viewMatrix,
 	pSpotlightProgram->SetUniform("spotlight[57].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[57].cutoff", 30.f);
 
-
-
-
 	pSpotlightProgram->SetUniform("spotlight[58].position", viewMatrix* glm::vec4(-758, 19 - 120, 518, 1)); // Light position in eye coordinates
 	pSpotlightProgram->SetUniform("spotlight[58].Ld", purple * 3.f);			// Diffuse colour of light
 	pSpotlightProgram->SetUniform("spotlight[58].Ls", purple * 3.f);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[58].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[58].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[58].cutoff", 30.f);
-
 
 	pSpotlightProgram->SetUniform("spotlight[59].position", viewMatrix* glm::vec4(-815, 0 - 120, 240, 1)); // Light position in eye coordinates
 	pSpotlightProgram->SetUniform("spotlight[59].Ld", green * 0.2f);			// Diffuse colour of light
@@ -1295,4 +1346,127 @@ void Game::RenderLights(CShaderProgram* pSpotlightProgram, glm::mat4 viewMatrix,
 	pSpotlightProgram->SetUniform("spotlight[62].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[62].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[62].cutoff", 30.f);
+}
+
+void Game::RenderEnvCars(CShaderProgram* pSpotlightProgram, glm::vec3 EnvStarshipPosition, glm::mat4 EnvStarshipOrientation) {
+	//set 1
+	modelViewMatrixStack.Push();
+	modelViewMatrixStack.Translate(EnvStarshipPosition + glm::vec3(0, 0, 0));
+	modelViewMatrixStack *= EnvStarshipOrientation;
+	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+	modelViewMatrixStack.Scale(1.f);
+	pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pStarship->Render();
+	modelViewMatrixStack.Pop();
+
+	modelViewMatrixStack.Push();
+	modelViewMatrixStack.Translate(EnvStarshipPosition + glm::vec3(10, 10, 70));
+	modelViewMatrixStack *= EnvStarshipOrientation;
+	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+	modelViewMatrixStack.Scale(1.f);
+	pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pFreighter->Render();
+	modelViewMatrixStack.Pop();
+
+	modelViewMatrixStack.Push();
+	modelViewMatrixStack.Translate(EnvStarshipPosition + glm::vec3(-10, -10, 50));
+	modelViewMatrixStack *= EnvStarshipOrientation;
+	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+	modelViewMatrixStack.Scale(1.f);
+	pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pTransport->Render();
+	modelViewMatrixStack.Pop();
+
+	modelViewMatrixStack.Push();
+	modelViewMatrixStack.Translate(EnvStarshipPosition + glm::vec3(0, 15, 130));
+	modelViewMatrixStack *= EnvStarshipOrientation;
+	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+	modelViewMatrixStack.Scale(1.f);
+	pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pTransport->Render();
+	modelViewMatrixStack.Pop();
+
+	modelViewMatrixStack.Push();
+	modelViewMatrixStack.Translate(EnvStarshipPosition + glm::vec3(0, 0, -130));
+	modelViewMatrixStack *= EnvStarshipOrientation;
+	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+	modelViewMatrixStack.Scale(1.f);
+	pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pFreighter->Render();
+	modelViewMatrixStack.Pop();
+
+	modelViewMatrixStack.Push();
+	modelViewMatrixStack.Translate(EnvStarshipPosition + glm::vec3(25, -10, 30));
+	modelViewMatrixStack *= EnvStarshipOrientation;
+	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+	modelViewMatrixStack.Scale(1.f);
+	pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pFlyingCar->Render();
+	modelViewMatrixStack.Pop();
+
+	modelViewMatrixStack.Push();
+	modelViewMatrixStack.Translate(EnvStarshipPosition + glm::vec3(-25, 5, 30));
+	modelViewMatrixStack *= EnvStarshipOrientation;
+	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+	modelViewMatrixStack.Scale(1.f);
+	pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pFlyingCar->Render();
+	modelViewMatrixStack.Pop();
+
+	modelViewMatrixStack.Push();
+	modelViewMatrixStack.Translate(EnvStarshipPosition + glm::vec3(25, 10, -30));
+	modelViewMatrixStack *= EnvStarshipOrientation;
+	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+	modelViewMatrixStack.Scale(1.f);
+	pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pFlyingCar->Render();
+	modelViewMatrixStack.Pop();
+
+	modelViewMatrixStack.Push();
+	modelViewMatrixStack.Translate(EnvStarshipPosition + glm::vec3(-25, 10, -30));
+	modelViewMatrixStack *= EnvStarshipOrientation;
+	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+	modelViewMatrixStack.Scale(1.f);
+	pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pPoliceCar->Render();
+	modelViewMatrixStack.Pop();
+
+	modelViewMatrixStack.Push();
+	modelViewMatrixStack.Translate(EnvStarshipPosition + glm::vec3(30, -4, -10));
+	modelViewMatrixStack *= EnvStarshipOrientation;
+	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+	modelViewMatrixStack.Scale(1.f);
+	pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pPoliceCar->Render();
+	modelViewMatrixStack.Pop();
+
+	modelViewMatrixStack.Push();
+	modelViewMatrixStack.Translate(EnvStarshipPosition + glm::vec3(-25, 10, -100));
+	modelViewMatrixStack *= EnvStarshipOrientation;
+	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+	modelViewMatrixStack.Scale(1.f);
+	pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pPatrolCar->Render();
+	modelViewMatrixStack.Pop();
+
+	modelViewMatrixStack.Push();
+	modelViewMatrixStack.Translate(EnvStarshipPosition + glm::vec3(30, -4, -70));
+	modelViewMatrixStack *= EnvStarshipOrientation;
+	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
+	modelViewMatrixStack.Scale(1.f);
+	pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pPatrolCar->Render();
+	modelViewMatrixStack.Pop();
 }
