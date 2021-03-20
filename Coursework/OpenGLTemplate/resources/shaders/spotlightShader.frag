@@ -6,6 +6,7 @@ uniform sampler2D sampler0;  // The texture sampler
 uniform samplerCube CubeMapTex;
 
 uniform bool fogOn;
+uniform float discardTime;
 
 out vec4 vOutputColour;
 
@@ -39,6 +40,8 @@ uniform MaterialInfo material1;
 
 in vec3 worldPosition;
 uniform bool renderSkybox;
+uniform bool renderTrack;
+uniform bool showTrack;
 
 
 // This function implements the Phong shading model
@@ -155,6 +158,26 @@ void main()
 	if (renderSkybox) {
 		vOutputColour = texture(CubeMapTex, worldPosition);
 
+	} else if(renderTrack) {
+
+		vec4 vTexColour = texture(sampler0, vTexCoord);	
+
+		if(!showTrack) {
+			if (vTexColour.r < fract(discardTime/5)) {
+				discard;
+			}
+		}
+		
+		vec3 normalised_n = normalize(n);
+		vec3 vColour = PhongModel(p, normalised_n);
+
+		vColour += PointlightModel(pointlight, p, normalised_n);
+
+		for (int i = 0 ; i < 63 ; i++) { 
+			vColour += BlinnPhongSpotlightModel(spotlight[i], p, normalised_n);
+		}
+
+		vOutputColour = vTexColour*vec4(vColour, 1);
 
 	} else {
 

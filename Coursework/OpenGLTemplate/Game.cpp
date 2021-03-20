@@ -472,7 +472,7 @@ void Game::Render()
 		m_pDowntown->Render();
 	modelViewMatrixStack.Pop();
 
-	if (m_showPath) {
+	//if (m_showPath) {
 
 		// Render Catmull Spline Route
 		//modelViewMatrixStack.Push();
@@ -490,14 +490,18 @@ void Game::Render()
 
 		// Render Catmull Spline Route Track
 		modelViewMatrixStack.Push();
+			pSpotlightProgram->SetUniform("renderTrack", true);
+			pSpotlightProgram->SetUniform("showTrack", m_showPath);
+			pSpotlightProgram->SetUniform("discardTime", m_pathDiscardTime);
 			pSpotlightProgram->SetUniform("light1.La", glm::vec3(1.f));
 			pSpotlightProgram->SetUniform("material1.Ma", glm::vec3(1.0f));	// Ambient material reflectance
 			pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 			pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
 			m_pCatmullRom->RenderTrack();
+			pSpotlightProgram->SetUniform("renderTrack", false);
 		modelViewMatrixStack.Pop();
 
-	}
+	//}
 		
 	// Draw the 2D graphics after the 3D graphics
 	DisplayFrameRate();
@@ -508,7 +512,7 @@ void Game::Render()
 }
 
 // Update method runs repeatedly with the Render method
-void Game::Update() 
+void Game::Update()
 {
 	// Update the camera using the amount of time that has elapsed to avoid framerate dependent motion
 	m_pCamera->Update(m_dt);
@@ -538,14 +542,14 @@ void Game::Update()
 			m_pCamera->Set(p + (5.f * cam_B) + (1.5f * cam_T) + (m_starshipStrafe * cam_N), p + (500.0f * cam_T), p_y);
 		}
 		else if (m_cameraMode == 3) {
-			m_pCamera->Set(p + (13.f * cam_B) + (-30.f * cam_T) + ((m_starshipStrafe * 0.7f)  * cam_N), p + (200.0f * cam_T), p_y);
+			m_pCamera->Set(p + (13.f * cam_B) + (-30.f * cam_T) + ((m_starshipStrafe * 0.7f) * cam_N), p + (200.0f * cam_T), p_y);
 		}
 	}
 
 	m_starshipFrontLightPosition = p + (2.9f * cam_B) + (m_starshipStrafe * cam_N) + (2.f * cam_T);
 	m_starshipBackLightPosition = p + (3.8f * cam_B) + (m_starshipStrafe * cam_N) + (-9.f * cam_T);
 	m_starshipPosition = p + (2.9f * cam_B) + (m_starshipStrafe * cam_N);
-	m_starshipOrientation = glm::mat4(glm::mat3(cam_T, cam_B, cam_N)); 
+	m_starshipOrientation = glm::mat4(glm::mat3(cam_T, cam_B, cam_N));
 
 	HandleEnvShips();
 
@@ -553,7 +557,11 @@ void Game::Update()
 
 	m_pAudio->Update();
 
-
+	if (!m_showPath) {	
+		if (m_pathDiscardTime < 2.f) {
+			m_pathDiscardTime += 0.00035f * (float)m_dt;
+		}
+	}
 
 	m_t += 0.001f * (float)m_dt;
 	float r = 75.0f;
@@ -841,6 +849,7 @@ LRESULT Game::ProcessEvents(HWND window,UINT message, WPARAM w_param, LPARAM l_p
 		
 		case VK_F5:
 			m_showPath = !m_showPath;
+			m_pathDiscardTime = 0;
 			break;
 
 		case VK_F6:

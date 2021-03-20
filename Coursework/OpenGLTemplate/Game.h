@@ -51,7 +51,7 @@ private:
 	COpenAssetImportMesh* m_pFlyingCar;
 	COpenAssetImportMesh* m_pPoliceCar;
 	COpenAssetImportMesh* m_pPatrolCar;
-
+	CHighResolutionTimer *m_pTimer;
 
 	COpenAssetImportMesh* m_pMan;
 
@@ -111,11 +111,12 @@ private:
 	int m_cameraMode;
 	bool m_freeview;
 
+	float m_pathDiscardTime;
+	bool m_isDiscardFinish;
 	bool m_showPath;
 	const float m_topSpeed = 0.2f;
 
 	bool m_fogOn;
-
 
 	float m_EnvCurrentDistance;
 	glm::vec3 m_EnvStarshipPosition;
