@@ -34,10 +34,10 @@ Source code drawn from a number of sources and examples, including contributions
 #include "Shaders.h"
 #include "FreeTypeFont.h"
 #include "Sphere.h"
-#include "MatrixStack.h"
 #include "OpenAssetImportMesh.h"
 #include "Audio.h"
 #include "Cube.h"
+#include "Tetrahedron.h"
 #include "CatmullRom.h"
 
 // Constructor
@@ -55,6 +55,7 @@ Game::Game()
 	m_pHighResolutionTimer = NULL;
 	m_pAudio = NULL;
 	m_pCube = NULL;
+	m_pTetrahedron = NULL;
 	m_pCatmullRom = NULL;
 	m_pCity = NULL;
 	m_pCenterCity = NULL;
@@ -95,7 +96,18 @@ Game::~Game()
 	delete m_pSphere;
 	delete m_pAudio;
 	delete m_pCube;
+	delete m_pTetrahedron;
 	delete m_pCity;
+	delete m_pCenterCity;
+	delete m_pDowntown;
+
+	delete m_pStarship;
+	delete m_pTransport;
+	delete m_pFreighter;
+	delete m_pFlyingCar;
+	delete m_pPoliceCar;
+	delete m_pPatrolCar;
+	delete m_pMan;
 
 	if (m_pShaderPrograms != NULL) {
 		for (unsigned int i = 0; i < m_pShaderPrograms->size(); i++)
@@ -105,6 +117,7 @@ Game::~Game()
 
 	//setup objects
 	delete m_pHighResolutionTimer;
+	delete m_pTimer;
 }
 
 // Initialisation:  This method only runs once at startup
@@ -140,6 +153,7 @@ void Game::Initialise()
 	m_pMan = new COpenAssetImportMesh;
 
 	m_pCube = new CCube;
+	m_pTetrahedron = new CTetrahedron;
 	m_pCatmullRom = new CCatmullRom;
 
 	m_t = 0;
@@ -257,6 +271,7 @@ void Game::Initialise()
 	//m_pAudio->PlayMusicStream();
 
 	m_pCube->Create("resources\\textures\\Tile41a.jpg");
+	m_pTetrahedron->Create("resources\\textures\\Tile41a.jpg");
 
 	m_pCatmullRom->CreateCentreline();
 	m_pCatmullRom->CreateOffsetCurves(m_routeWidth);
@@ -276,7 +291,7 @@ void Game::Render()
 	glEnable(GL_CULL_FACE);
 
 	// Set up a matrix stack
-	
+	glutil::MatrixStack modelViewMatrixStack;
 	modelViewMatrixStack.SetIdentity();
 
 	// Note: cubemap and non-cubemap textures should not be mixed in the same texture unit.  Setting unit 10 to be a cubemap texture.
@@ -392,12 +407,12 @@ void Game::Render()
 		m_pStarship->Render();
 	modelViewMatrixStack.Pop();
 
-	RenderEnvCars(pSpotlightProgram, m_EnvStarshipPosition, m_EnvStarshipOrientation);
-	RenderEnvCars(pSpotlightProgram, m_EnvStarshipPosition2, m_EnvStarshipOrientation2);
-	RenderEnvCars(pSpotlightProgram, m_EnvStarshipPosition3, m_EnvStarshipOrientation3);
-	RenderEnvCars(pSpotlightProgram, m_EnvStarshipPosition4, m_EnvStarshipOrientation4);
-	RenderEnvCars(pSpotlightProgram, m_EnvStarshipPosition5, m_EnvStarshipOrientation5);
-	RenderEnvCars(pSpotlightProgram, m_EnvStarshipPosition6, m_EnvStarshipOrientation6);
+	RenderEnvCars(pSpotlightProgram, modelViewMatrixStack, m_EnvStarshipPosition, m_EnvStarshipOrientation);
+	RenderEnvCars(pSpotlightProgram, modelViewMatrixStack, m_EnvStarshipPosition2, m_EnvStarshipOrientation2);
+	RenderEnvCars(pSpotlightProgram, modelViewMatrixStack, m_EnvStarshipPosition3, m_EnvStarshipOrientation3);
+	RenderEnvCars(pSpotlightProgram, modelViewMatrixStack, m_EnvStarshipPosition4, m_EnvStarshipOrientation4);
+	RenderEnvCars(pSpotlightProgram, modelViewMatrixStack, m_EnvStarshipPosition5, m_EnvStarshipOrientation5);
+	RenderEnvCars(pSpotlightProgram, modelViewMatrixStack, m_EnvStarshipPosition6, m_EnvStarshipOrientation6);
 
 	// Render the Man
 	modelViewMatrixStack.Push();
@@ -409,15 +424,25 @@ void Game::Render()
 		m_pMan->Render();
 	modelViewMatrixStack.Pop();
 
-	//// Render the cube 
-	//modelViewMatrixStack.Push();
-	//	modelViewMatrixStack.Translate(glm::vec3(0.0f, 2.0f, 0.0f));
-	//	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(0.0f));
-	//	modelViewMatrixStack.Scale(2.f);
-	//	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-	//	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-	//	m_pCube->Render();
-	//modelViewMatrixStack.Pop();
+	// Render the cube 
+	modelViewMatrixStack.Push();
+		modelViewMatrixStack.Translate(glm::vec3(414.0f, 351.0f, 1746.0f));
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(0.0f));
+		modelViewMatrixStack.Scale(2.f);
+		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pCube->Render();
+	modelViewMatrixStack.Pop();
+
+	// Render the tetrahedron 
+	modelViewMatrixStack.Push();
+		modelViewMatrixStack.Translate(glm::vec3(368.0f, 340.0f, 1726.0f));
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(0.0f));
+		modelViewMatrixStack.Scale(2.f);
+		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pTetrahedron->Render();
+	modelViewMatrixStack.Pop();
 
 
 	//// Render the barrel 
@@ -441,6 +466,16 @@ void Game::Render()
 	//	m_pSphere->Render();
 	//modelViewMatrixStack.Pop();
 
+		// Render the Downtown 
+	modelViewMatrixStack.Push();
+	modelViewMatrixStack.Translate(glm::vec3(120.f, 0.f, 290.0f));
+	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(10.f));
+	modelViewMatrixStack.Scale(1.7f, 3.5f, 1.7f);
+	pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	m_pDowntown->Render();
+	modelViewMatrixStack.Pop();
+
 	glDisable(GL_CULL_FACE);
 	// Render the City 
 	modelViewMatrixStack.Push();
@@ -462,46 +497,33 @@ void Game::Render()
 		m_pCenterCity->Render();
 	modelViewMatrixStack.Pop();
 
-	// Render the Downtown 
+	// Render Catmull Spline Route
+	//modelViewMatrixStack.Push();
+	//pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	//pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	//m_pCatmullRom->RenderCentreline();
+	//modelViewMatrixStack.Pop();
+
+	//// Render Catmull Spline Route offsets
+	//modelViewMatrixStack.Push();
+	//pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+	//pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+	//m_pCatmullRom->RenderOffsetCurves();
+	//modelViewMatrixStack.Pop();
+
+	// Render Catmull Spline Route Track
 	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(glm::vec3(120.f, 0.f, 290.0f));
-		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(10.f));
-		modelViewMatrixStack.Scale(1.7f, 3.5f, 1.7f);
+		pSpotlightProgram->SetUniform("renderTrack", true);
+		pSpotlightProgram->SetUniform("showTrack", m_showPath);
+		pSpotlightProgram->SetUniform("discardTime", m_pathDiscardTime);
+		pSpotlightProgram->SetUniform("light1.La", glm::vec3(1.f));
+		pSpotlightProgram->SetUniform("material1.Ma", glm::vec3(1.0f));	// Ambient material reflectance
 		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pDowntown->Render();
+		m_pCatmullRom->RenderTrack();
+		pSpotlightProgram->SetUniform("renderTrack", false);
 	modelViewMatrixStack.Pop();
 
-	//if (m_showPath) {
-
-		// Render Catmull Spline Route
-		//modelViewMatrixStack.Push();
-		//pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		//pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		//m_pCatmullRom->RenderCentreline();
-		//modelViewMatrixStack.Pop();
-
-		//// Render Catmull Spline Route offsets
-		//modelViewMatrixStack.Push();
-		//pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		//pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		//m_pCatmullRom->RenderOffsetCurves();
-		//modelViewMatrixStack.Pop();
-
-		// Render Catmull Spline Route Track
-		modelViewMatrixStack.Push();
-			pSpotlightProgram->SetUniform("renderTrack", true);
-			pSpotlightProgram->SetUniform("showTrack", m_showPath);
-			pSpotlightProgram->SetUniform("discardTime", m_pathDiscardTime);
-			pSpotlightProgram->SetUniform("light1.La", glm::vec3(1.f));
-			pSpotlightProgram->SetUniform("material1.Ma", glm::vec3(1.0f));	// Ambient material reflectance
-			pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-			pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-			m_pCatmullRom->RenderTrack();
-			pSpotlightProgram->SetUniform("renderTrack", false);
-		modelViewMatrixStack.Pop();
-
-	//}
 		
 	// Draw the 2D graphics after the 3D graphics
 	DisplayFrameRate();
@@ -711,6 +733,7 @@ void Game::DisplayFrameRate()
 
 	RECT dimensions = m_gameWindow.GetDimensions();
 	int height = dimensions.bottom - dimensions.top;
+	int width = dimensions.right - dimensions.left;
 
 	// Increase the elapsed time and frame counter
 	m_elapsedTime += m_dt;
@@ -738,6 +761,8 @@ void Game::DisplayFrameRate()
 		m_pFtFont->Render(20, height - 40, 20, "X: %f", m_pCamera->GetPosition().x);
 		m_pFtFont->Render(20, height - 60, 20, "Y: %f", m_pCamera->GetPosition().y);
 		m_pFtFont->Render(20, height - 80, 20, "Z: %f", m_pCamera->GetPosition().z);
+		m_pFtFont->Render(100, height * 0.1f, 20, "KM/H: %.0f", m_cameraSpeed * 800);
+		m_pFtFont->Render(width * 0.48f, height * 0.9f, 20, "Lap: %d", m_pCatmullRom->CurrentLap(m_currentDistance));
 	}
 }
 
@@ -1357,7 +1382,7 @@ void Game::RenderLights(CShaderProgram* pSpotlightProgram, glm::mat4 viewMatrix,
 	pSpotlightProgram->SetUniform("spotlight[62].cutoff", 30.f);
 }
 
-void Game::RenderEnvCars(CShaderProgram* pSpotlightProgram, glm::vec3 EnvStarshipPosition, glm::mat4 EnvStarshipOrientation) {
+void Game::RenderEnvCars(CShaderProgram* pSpotlightProgram, glutil::MatrixStack modelViewMatrixStack, glm::vec3 EnvStarshipPosition, glm::mat4 EnvStarshipOrientation) {
 	//set 1
 	modelViewMatrixStack.Push();
 	modelViewMatrixStack.Translate(EnvStarshipPosition + glm::vec3(0, 0, 0));

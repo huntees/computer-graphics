@@ -18,6 +18,7 @@ class CSphere;
 class COpenAssetImportMesh;
 class CAudio;
 class CCube;
+class CTetrahedron;
 class CCatmullRom;
 
 class Game {
@@ -40,6 +41,7 @@ private:
 	CHighResolutionTimer *m_pHighResolutionTimer;
 	CAudio *m_pAudio;
 	CCube* m_pCube;
+	CTetrahedron* m_pTetrahedron;
 	CCatmullRom* m_pCatmullRom;
 	COpenAssetImportMesh* m_pCity;
 	COpenAssetImportMesh* m_pCenterCity;
@@ -87,9 +89,7 @@ private:
 	double m_elapsedTime;
 
 	void RenderLights(CShaderProgram* pSpotlightProgram, glm::mat4 viewMatrix, glm::mat3 viewNormalMatrix);
-	void RenderEnvCars(CShaderProgram* pSpotlightProgram, glm::vec3 EnvStarshipPosition, glm::mat4 EnvStarshipOrientation);
-
-	glutil::MatrixStack modelViewMatrixStack;
+	void RenderEnvCars(CShaderProgram* pSpotlightProgram, glutil::MatrixStack modelViewMatrixStack, glm::vec3 EnvStarshipPosition, glm::mat4 EnvStarshipOrientation);
 
 	float m_t;
 	glm::vec3 m_spaceShipPosition;
