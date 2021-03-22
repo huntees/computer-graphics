@@ -104,33 +104,6 @@ vec3 BlinnPhongSpotlightModel(LightInfo light, vec4 p, vec3 n)
 	}
 }
 
-//vec3 BlinnPhongSpotlightModel(LightInfo light, vec4 p, vec3 n)
-//{
-//	vec3 s = normalize(vec3(light.position - p));
-//	float dist = length(vec3(p - light.position));
-//	float angle = acos(dot(-s, light.direction));
-//	float cutoff = radians(clamp(light.cutoff, 0.0, 90.0));
-//	vec3 ambient = light.La * material1.Ma;
-//
-//	if (angle < cutoff) {
-//		float spotFactor = pow(dot(-s, light.direction), light.exponent);
-//		vec3 v = normalize(-p.xyz);
-//		vec3 h = normalize(v + s);
-//		float sDotN = max(dot(s, n), 0.0);
-//		vec3 diffuse = light.Ld * material1.Md * sDotN;
-//		vec3 specular = vec3(0.0);
-//
-//		if (sDotN > 0.0) {
-//			specular = light.Ls * material1.Ms * pow(max(dot(h, n), 0.0), material1.shininess);
-//		}
-//
-//	return (ambient + spotFactor * ((diffuse + specular)  / (dist * 0.008)));
-//	}
-//	else {
-//		return ambient;
-//	}
-//}
-
 vec3 PointlightModel(LightInfo light, vec4 p, vec3 n)
 {
 	vec3 s = normalize(vec3(light.position - p));
@@ -197,13 +170,6 @@ void main()
 	}
 
 	if(fogOn){
-		//float maxDist = 3000;
-		//float minDist = 100;
-		//float dist = length(p.xyz);
-		//float fogFactor = (maxDist - dist) / (maxDist - minDist);
-		//fogFactor = clamp(fogFactor, 0.0, 1.0);
-
-		//vOutputColour.rgb = mix(vec3(0.5), vOutputColour.rgb, fogFactor);
 
 		float dist = length(p.xyz);
 		float w = exp(-0.0007f * dist);

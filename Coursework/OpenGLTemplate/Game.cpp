@@ -232,7 +232,7 @@ void Game::Initialise()
 	m_pSkybox->Create(2500.0f);
 	
 	// Create the planar terrain
-	m_pPlanarTerrain->Create("resources\\textures\\", "sea.jpg", 10000.0f, 10000.0f, 50.0f);
+	m_pPlanarTerrain->Create("resources\\textures\\", "sea.jpg", 10000.0f, 10000.0f, 50.0f); // Downloaded from https://www.sketchuptextureclub.com/textures/nature-elements/water/sea-water/sea-water-texture-seamless-13246 on 18/03/2021
 
 	m_pFtFont->LoadSystemFont("arial.ttf", 32);
 	m_pFtFont->SetShaderProgram(pFontProgram);
@@ -240,17 +240,17 @@ void Game::Initialise()
 	// Load some meshes in OBJ format
 	m_pBarrelMesh->Load("resources\\models\\Barrel\\Barrel02.obj");  // Downloaded from http://www.psionicgames.com/?page_id=24 on 24 Jan 2013
 	m_pHorseMesh->Load("resources\\models\\Horse\\Horse2.obj");  // Downloaded from http://opengameart.org/content/horse-lowpoly on 24 Jan 2013
-	m_pFighterMesh->Load("resources\\models\\Fighter\\fighter1.obj");
-	m_pCity->Load("resources\\models\\City\\City.obj");
-	m_pCenterCity->Load("resources\\models\\CenterCity\\CenterCity.obj");
-	m_pDowntown->Load("resources\\models\\Downtown\\downtown.obj");
+	m_pFighterMesh->Load("resources\\models\\Fighter\\fighter1.obj"); 
+	m_pCity->Load("resources\\models\\City\\City.obj"); // Downloaded from https://free3d.com/3d-model/sci-fi-city-83682.html on 17/03/2021
+	m_pCenterCity->Load("resources\\models\\CenterCity\\CenterCity.obj"); // Downloaded from https://free3d.com/3d-model/sci-fi-downtown-city-53758.html on 17/03/2021
+	m_pDowntown->Load("resources\\models\\Downtown\\downtown.obj"); // Downloaded from https://free3d.com/3d-model/sci-fi-downtown-city-23035.html on 17/03/2021
 
-	m_pStarship->Load("resources\\models\\Starship\\Starship.obj");
-	m_pTransport->Load("resources\\models\\Transport\\transport.obj");
-	m_pFreighter->Load("resources\\models\\Freighter\\freighter.obj");
-	m_pFlyingCar->Load("resources\\models\\FlyingCar\\FlyingCar.obj");
-	m_pPoliceCar->Load("resources\\models\\PoliceCar\\policecar.obj");
-	m_pPatrolCar->Load("resources\\models\\PatrolCar\\PatrolCar.obj");
+	m_pStarship->Load("resources\\models\\Starship\\Starship.obj"); // Downloaded from https://free3d.com/3d-model/wraith-raider-starship-22193.html on 17/03/2021
+	m_pTransport->Load("resources\\models\\Transport\\transport.obj"); // Downloaded from https://free3d.com/3d-model/futuristic-transport-shuttle-rigged--18765.html on 17/03/2021
+	m_pFreighter->Load("resources\\models\\Freighter\\freighter.obj"); // Downloaded from https://free3d.com/3d-model/si-fi-freighter-13915.html on 17/03/2021
+	m_pFlyingCar->Load("resources\\models\\FlyingCar\\FlyingCar.obj"); // Downloaded from https://free3d.com/3d-model/hn48-flying-car-10381.html on 17/03/2021
+	m_pPoliceCar->Load("resources\\models\\PoliceCar\\policecar.obj"); // Downloaded from https://free3d.com/3d-model/city-patrol-vehicle-84293.html on 17/03/2021
+	m_pPatrolCar->Load("resources\\models\\PatrolCar\\PatrolCar.obj"); // Downloaded from https://free3d.com/3d-model/city-patrol-vehicle-84293.html on 17/03/2021
 
 	// Create a sphere
 	m_pSphere->Create("resources\\textures\\", "dirtpile01.jpg", 25, 25);  // Texture downloaded from http://www.psionicgames.com/?page_id=26 on 24 Jan 2013
@@ -262,8 +262,8 @@ void Game::Initialise()
 	m_pAudio->LoadMusicStream("resources\\Audio\\DST-Garote.mp3");	// Royalty free music from http://www.nosoapradio.us/
 	//m_pAudio->PlayMusicStream();
 
-	m_pCube->Create("resources\\textures\\crate.jpg");
-	m_pTetrahedron->Create("resources\\textures\\tetrahedron.jpg");
+	m_pCube->Create("resources\\textures\\crate.jpg"); // Downloaded from https://polycount.com/discussion/74895/pk02-sci-fi-texture-set-released on 22/03/2021
+	m_pTetrahedron->Create("resources\\textures\\tetrahedron.jpg"); // Downloaded from https://polycount.com/discussion/74895/pk02-sci-fi-texture-set-released on 22/03/2021
 
 	m_pCatmullRom->CreateCentreline();
 	m_pCatmullRom->CreateOffsetCurves(m_routeWidth);
@@ -330,7 +330,7 @@ void Game::Render()
 		pSpotlightProgram->SetUniform("renderSkybox", false);
 	modelViewMatrixStack.Pop();
 
-
+	//change mat for objects
 	pSpotlightProgram->SetUniform("material1.Ma", glm::vec3(0.5f));
 	pSpotlightProgram->SetUniform("material1.Md", glm::vec3(0.5f));
 	pSpotlightProgram->SetUniform("material1.Ms", glm::vec3(1.0f));
@@ -342,7 +342,7 @@ void Game::Render()
 		m_pPlanarTerrain->Render();
 	modelViewMatrixStack.Pop();
 	
-	// Set light and materials in spotlight programme
+	//toggle headlight
 	if (m_headlightOn) {
 		headlightColour = glm::vec3(1.f);
 	}
@@ -364,6 +364,7 @@ void Game::Render()
 	pSpotlightProgram->SetUniform("pointlight.Ld", glm::vec3(1.f, 0.f, 0.f));			// Diffuse colour of light
 	pSpotlightProgram->SetUniform("pointlight.Ls", glm::vec3(1.f, 0.f, 0.f));			// Specular colour of light
 
+	//render city lights
 	RenderLights(pSpotlightProgram, viewMatrix, viewNormalMatrix);
 
 	// Render the horse 
@@ -378,7 +379,7 @@ void Game::Render()
 	
 	// Render the fighter 
 	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(m_spaceShipPosition + glm::vec3(104, 180.0f, -48.0f));
+		modelViewMatrixStack.Translate(m_spaceShipPosition + glm::vec3(700.f, 200.0f, -381.0f));
 		modelViewMatrixStack *= m_spaceShipOrientation;
 		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
 		modelViewMatrixStack.Scale(1.f);
@@ -398,6 +399,7 @@ void Game::Render()
 		m_pStarship->Render();
 	modelViewMatrixStack.Pop();
 
+	//render environment vehicles
 	RenderEnvCars(pSpotlightProgram, modelViewMatrixStack, m_EnvStarshipPosition, m_EnvStarshipOrientation);
 	RenderEnvCars(pSpotlightProgram, modelViewMatrixStack, m_EnvStarshipPosition2, m_EnvStarshipOrientation2);
 	RenderEnvCars(pSpotlightProgram, modelViewMatrixStack, m_EnvStarshipPosition3, m_EnvStarshipOrientation3);
@@ -502,75 +504,36 @@ void Game::Update()
 	// Update the camera using the amount of time that has elapsed to avoid framerate dependent motion
 	m_pCamera->Update(m_dt);
 
-	m_currentDistance += m_cameraSpeed * m_dt;
-
-	glm::vec3 p;
-	glm::vec3 p_y;
-	m_pCatmullRom->Sample(m_currentDistance, p, p_y);
-
-	glm::vec3 pNext;
-	m_pCatmullRom->Sample(m_currentDistance + 1.0f, pNext);
-
-	glm::vec3 cam_T = glm::normalize(pNext - p); //(z axis)
-	glm::vec3 cam_N = glm::normalize(glm::cross(cam_T, p_y)); //(x axis)
-	glm::vec3 cam_B = glm::normalize(glm::cross(cam_N, cam_T)); //(y axis)
-
-	m_starship_B = cam_B;
-
-	if (!m_freeview) {
-		if (m_cameraMode == 1) {
-			m_pCamera->Set(p + (5.f * cam_B) + (4.f * cam_T) + (m_starshipStrafe * cam_N), p + (500.0f * cam_T), p_y);
-		}
-		else if (m_cameraMode == 2) {
-			m_pCamera->Set(p + (5.f * cam_B) + (1.5f * cam_T) + (m_starshipStrafe * cam_N), p + (500.0f * cam_T), p_y);
-		}
-		else if (m_cameraMode == 3) {
-			m_pCamera->Set(p + (13.f * cam_B) + (-30.f * cam_T) + ((m_starshipStrafe * 0.7f) * cam_N), p + (200.0f * cam_T), p_y);
-		}
-	}
-
-	m_starshipFrontLightPosition = p + (2.9f * cam_B) + (m_starshipStrafe * cam_N) + (2.f * cam_T);
-	m_starshipBackLightPosition = p + (3.8f * cam_B) + (m_starshipStrafe * cam_N) + (-9.f * cam_T);
-	m_starshipPosition = p + (2.9f * cam_B) + (m_starshipStrafe * cam_N);
-	m_starshipOrientation = glm::mat4(glm::mat3(cam_T, cam_B, cam_N));
-
+	//Update environment ships
 	HandleEnvShips();
 
+	//Update movement
 	HandleMovement();
 
+	//Update pickups
 	HandlePickups();
 
 	m_pAudio->Update();
 
+	//Update Timer for HUD
 	m_hudTime += (float)m_dt / 1000;
 
-	m_pickupRotation += 0.1f * (float)m_dt;
-	if (m_pickupRotation > 360.f) {
-		m_pickupRotation = 0.f;
-	}
-
-
+	//Toggle path
 	if (!m_showPath) {	
 		if (m_pathDiscardTime < 2.f) {
 			m_pathDiscardTime += 0.00035f * (float)m_dt;
 		}
 	}
-
-	m_t += 0.001f * (float)m_dt;
-	float r = 75.0f;
-	glm::vec3 x = glm::vec3(1, 0, 0);
-	glm::vec3 y = glm::vec3(0, 1, 0);
-	glm::vec3 z = glm::vec3(0, 0, 1);
-	m_spaceShipPosition = r * cos(m_t) * x + 50.0f * y + r * sin(m_t) * z;
-
-	glm::vec3 T = glm::normalize(-r * sin(m_t) * x + r * cos(m_t) * z);
-	glm::vec3 N = glm::normalize(glm::cross(T, y));
-	glm::vec3 B = glm::normalize(glm::cross(N, T));
-	
-	m_spaceShipOrientation = glm::mat4(glm::mat3(T, B, N));
 }
 
 void Game::HandlePickups() {
+
+	//pickup rotation
+	m_pickupRotation += 0.1f * (float)m_dt;
+	if (m_pickupRotation > 360.f) {
+		m_pickupRotation = 0.f;
+	}
+
 	if (glm::length(m_starshipPosition - m_cubePosition) < 5.f && !m_cubePickedUp) {
 		m_cubePickedUp = true;
 		m_hudTime -= 2;
@@ -655,7 +618,19 @@ void Game::HandleEnvShips() {
 	m_EnvStarshipPosition6 = p;
 	m_EnvStarshipOrientation6 = glm::mat4(glm::mat3(cam_T, cam_B, cam_N));
 
+	//Circling fighter
+	m_t += 0.001f * (float)m_dt;
+	float r = 75.0f;
+	glm::vec3 x = glm::vec3(1, 0, 0);
+	glm::vec3 y = glm::vec3(0, 1, 0);
+	glm::vec3 z = glm::vec3(0, 0, 1);
+	m_spaceShipPosition = r * cos(m_t) * x + 50.0f * y + r * sin(m_t) * z;
 
+	glm::vec3 T = glm::normalize(-r * sin(m_t) * x + r * cos(m_t) * z);
+	glm::vec3 N = glm::normalize(glm::cross(T, y));
+	glm::vec3 B = glm::normalize(glm::cross(N, T));
+
+	m_spaceShipOrientation = glm::mat4(glm::mat3(T, B, N));
 }
 
 void Game::HandleMovement() {
@@ -675,6 +650,39 @@ void Game::HandleMovement() {
 			m_cameraSpeed = 0.f;
 		}
 	}
+
+	//calculate track 
+	m_currentDistance += m_cameraSpeed * m_dt;
+
+	glm::vec3 p;
+	glm::vec3 p_y;
+	m_pCatmullRom->Sample(m_currentDistance, p, p_y);
+
+	glm::vec3 pNext;
+	m_pCatmullRom->Sample(m_currentDistance + 1.0f, pNext);
+
+	glm::vec3 cam_T = glm::normalize(pNext - p); //(z axis)
+	glm::vec3 cam_N = glm::normalize(glm::cross(cam_T, p_y)); //(x axis)
+	glm::vec3 cam_B = glm::normalize(glm::cross(cam_N, cam_T)); //(y axis)
+
+	m_starship_B = cam_B;
+
+	if (!m_freeview) {
+		if (m_cameraMode == 1) {
+			m_pCamera->Set(p + (5.f * cam_B) + (4.f * cam_T) + (m_starshipStrafe * cam_N), p + (500.0f * cam_T), p_y);
+		}
+		else if (m_cameraMode == 2) {
+			m_pCamera->Set(p + (5.f * cam_B) + (1.5f * cam_T) + (m_starshipStrafe * cam_N), p + (500.0f * cam_T), p_y);
+		}
+		else if (m_cameraMode == 3) {
+			m_pCamera->Set(p + (13.f * cam_B) + (-30.f * cam_T) + ((m_starshipStrafe * 0.7f) * cam_N), p + (200.0f * cam_T), p_y);
+		}
+	}
+
+	m_starshipFrontLightPosition = p + (2.9f * cam_B) + (m_starshipStrafe * cam_N) + (2.f * cam_T);
+	m_starshipBackLightPosition = p + (3.8f * cam_B) + (m_starshipStrafe * cam_N) + (-9.f * cam_T);
+	m_starshipPosition = p + (2.9f * cam_B) + (m_starshipStrafe * cam_N);
+	m_starshipOrientation = glm::mat4(glm::mat3(cam_T, cam_B, cam_N));
 
 	//Movement
 	if(GetKeyState(VK_UP) & 0x80 || GetKeyState('W') & 0x80) {
@@ -926,6 +934,7 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE, PSTR, int)
 }
 
 void Game::RenderLights(CShaderProgram* pSpotlightProgram, glm::mat4 viewMatrix, glm::mat3 viewNormalMatrix) {
+
 	pSpotlightProgram->SetUniform("spotlight[1].position", viewMatrix * glm::vec4(-1018, 20 - 120, 489, 1)); // Light position in eye coordinates
 	pSpotlightProgram->SetUniform("spotlight[1].Ld", teal);			// Diffuse colour of light
 	pSpotlightProgram->SetUniform("spotlight[1].Ls", teal);			// Specular colour of light
