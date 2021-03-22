@@ -270,8 +270,8 @@ void Game::Initialise()
 	m_pAudio->LoadMusicStream("resources\\Audio\\DST-Garote.mp3");	// Royalty free music from http://www.nosoapradio.us/
 	//m_pAudio->PlayMusicStream();
 
-	m_pCube->Create("resources\\textures\\Tile41a.jpg");
-	m_pTetrahedron->Create("resources\\textures\\Tile41a.jpg");
+	m_pCube->Create("resources\\textures\\crate.jpg");
+	m_pTetrahedron->Create("resources\\textures\\tetrahedron.jpg");
 
 	m_pCatmullRom->CreateCentreline();
 	m_pCatmullRom->CreateOffsetCurves(m_routeWidth);
@@ -1162,125 +1162,125 @@ void Game::RenderLights(CShaderProgram* pSpotlightProgram, glm::mat4 viewMatrix,
 	pSpotlightProgram->SetUniform("spotlight[32].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[32].cutoff", 30.f);
 
-	pSpotlightProgram->SetUniform("spotlight[33].position", viewMatrix* glm::vec4(1159, 15 - 120, -425, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[33].Ld", pink);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[33].Ls", pink);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[33].position", viewMatrix* glm::vec4(1109, 15 - 120, -356, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[33].Ld", teal);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[33].Ls", teal);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[33].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[33].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[33].cutoff", 30.f);
 
-	pSpotlightProgram->SetUniform("spotlight[34].position", viewMatrix* glm::vec4(1109, 15 - 120, -356, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[34].Ld", aqua);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[34].Ls", aqua);			// Specular colour of light
+	//left 2
+	pSpotlightProgram->SetUniform("spotlight[34].position", viewMatrix* glm::vec4(689, 125 - 120, -20, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[34].Ld", green);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[34].Ls", green);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[34].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[34].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[34].cutoff", 30.f);
 
-	//left 2
-	pSpotlightProgram->SetUniform("spotlight[35].position", viewMatrix* glm::vec4(689, 125 - 120, -20, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[35].Ld", pink);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[35].Ls", pink);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[35].position", viewMatrix* glm::vec4(788, 15 - 120, -253, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[35].Ld", blue);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[35].Ls", blue);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[35].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[35].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[35].cutoff", 30.f);
 
-	pSpotlightProgram->SetUniform("spotlight[36].position", viewMatrix* glm::vec4(788, 15 - 120, -253, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[36].Ld", aqua);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[36].Ls", aqua);			// Specular colour of light
+	//right 2
+	pSpotlightProgram->SetUniform("spotlight[36].position", viewMatrix* glm::vec4(955, 15 - 120, -556, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[36].Ld", red);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[36].Ls", red);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[36].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[36].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[36].cutoff", 30.f);
 
-	//right 2
-	pSpotlightProgram->SetUniform("spotlight[37].position", viewMatrix* glm::vec4(955, 15 - 120, -556, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[37].Ld", yellow);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[37].Ls", yellow);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[37].position", viewMatrix* glm::vec4(888, 15 - 120, -453, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[37].Ld", magenta);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[37].Ls", magenta);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[37].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[37].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[37].cutoff", 30.f);
 
-	pSpotlightProgram->SetUniform("spotlight[38].position", viewMatrix* glm::vec4(888, 15 - 120, -453, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[38].Ld", purple);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[38].Ls", purple);			// Specular colour of light
+	//left 3
+	pSpotlightProgram->SetUniform("spotlight[38].position", viewMatrix* glm::vec4(446, 15 - 120, -116, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[38].Ld", blue);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[38].Ls", blue);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[38].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[38].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[38].cutoff", 30.f);
 
-	//left 3
-	pSpotlightProgram->SetUniform("spotlight[39].position", viewMatrix* glm::vec4(446, 15 - 120, -116, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[39].Ld", yellow);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[39].Ls", yellow);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[39].position", viewMatrix* glm::vec4(597, 15 - 120, -389, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[39].Ld", green);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[39].Ls", green);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[39].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[39].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[39].cutoff", 30.f);
 
-	pSpotlightProgram->SetUniform("spotlight[40].position", viewMatrix* glm::vec4(597, 15 - 120, -389, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[40].Ld", purple);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[40].Ls", purple);			// Specular colour of light
+	//right 3
+	pSpotlightProgram->SetUniform("spotlight[40].position", viewMatrix* glm::vec4(764, 15 - 120, -668, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[40].Ld", yellow);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[40].Ls", yellow);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[40].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[40].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[40].cutoff", 30.f);
 
-	//right 3
-	pSpotlightProgram->SetUniform("spotlight[41].position", viewMatrix* glm::vec4(764, 15 - 120, -668, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[41].position", viewMatrix* glm::vec4(700, 15 - 120, -552, 1)); // Light position in eye coordinates
 	pSpotlightProgram->SetUniform("spotlight[41].Ld", yellow);			// Diffuse colour of light
 	pSpotlightProgram->SetUniform("spotlight[41].Ls", yellow);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[41].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[41].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[41].cutoff", 30.f);
 
-	pSpotlightProgram->SetUniform("spotlight[42].position", viewMatrix* glm::vec4(700, 15 - 120, -552, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[42].Ld", purple);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[42].Ls", purple);			// Specular colour of light
+	//left 4
+	pSpotlightProgram->SetUniform("spotlight[42].position", viewMatrix* glm::vec4(249, 15 - 120, -276, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[42].Ld", yellow);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[42].Ls", yellow);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[42].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[42].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[42].cutoff", 30.f);
 
-	//left 4
-	pSpotlightProgram->SetUniform("spotlight[43].position", viewMatrix* glm::vec4(249, 15 - 120, -276, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[43].Ld", yellow);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[43].Ls", yellow);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[43].position", viewMatrix* glm::vec4(391, 15 - 120, -476, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[43].Ld", red);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[43].Ls", red);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[43].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[43].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[43].cutoff", 30.f);
 
-	pSpotlightProgram->SetUniform("spotlight[44].position", viewMatrix* glm::vec4(391, 15 - 120, -476, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[44].Ld", purple);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[44].Ls", purple);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[44].position", viewMatrix* glm::vec4(139, 15 - 120, -495, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[44].Ld", magenta);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[44].Ls", magenta);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[44].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[44].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[44].cutoff", 30.f);
 
-	pSpotlightProgram->SetUniform("spotlight[45].position", viewMatrix* glm::vec4(139, 15 - 120, -495, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[45].Ld", teal);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[45].Ls", teal);			// Specular colour of light
+	//right 4
+	pSpotlightProgram->SetUniform("spotlight[45].position", viewMatrix* glm::vec4(637, 15 - 120, -736, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[45].Ld", red);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[45].Ls", red);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[45].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[45].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[45].cutoff", 30.f);
 
-	//right 4
-	pSpotlightProgram->SetUniform("spotlight[46].position", viewMatrix* glm::vec4(637, 15 - 120, -736, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[46].Ld", yellow);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[46].Ls", yellow);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[46].position", viewMatrix* glm::vec4(514, 15 - 120, -672, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[46].Ld", purple);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[46].Ls", purple);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[46].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[46].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[46].cutoff", 30.f);
 
-	pSpotlightProgram->SetUniform("spotlight[47].position", viewMatrix* glm::vec4(514, 15 - 120, -672, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[47].Ld", purple);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[47].Ls", purple);			// Specular colour of light
+	pSpotlightProgram->SetUniform("spotlight[47].position", viewMatrix* glm::vec4(353, 15 - 120, -875, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[47].Ld", aqua);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[47].Ls", aqua);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[47].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[47].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[47].cutoff", 30.f);
 
-	pSpotlightProgram->SetUniform("spotlight[48].position", viewMatrix* glm::vec4(353, 15 - 120, -875, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[48].Ld", teal);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[48].Ls", teal);			// Specular colour of light
+	//end of center city
+
+	pSpotlightProgram->SetUniform("spotlight[48].position", viewMatrix* glm::vec4(-399, 209 - 120, -481, 1)); // Light position in eye coordinates
+	pSpotlightProgram->SetUniform("spotlight[48].Ld", purple);			// Diffuse colour of light
+	pSpotlightProgram->SetUniform("spotlight[48].Ls", purple);			// Specular colour of light
 	pSpotlightProgram->SetUniform("spotlight[48].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
 	pSpotlightProgram->SetUniform("spotlight[48].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[48].cutoff", 30.f);
-
-	//end of center city
 
 	pSpotlightProgram->SetUniform("spotlight[49].position", viewMatrix* glm::vec4(-64, 85 - 120, -656, 1)); // Light position in eye coordinates
 	pSpotlightProgram->SetUniform("spotlight[49].Ld", red);			// Diffuse colour of light
@@ -1374,16 +1374,11 @@ void Game::RenderLights(CShaderProgram* pSpotlightProgram, glm::mat4 viewMatrix,
 	pSpotlightProgram->SetUniform("spotlight[61].exponent", 5.f);
 	pSpotlightProgram->SetUniform("spotlight[61].cutoff", 30.f);
 
-	pSpotlightProgram->SetUniform("spotlight[62].position", viewMatrix* glm::vec4(-399, 209 - 120, -481, 1)); // Light position in eye coordinates
-	pSpotlightProgram->SetUniform("spotlight[62].Ld", purple);			// Diffuse colour of light
-	pSpotlightProgram->SetUniform("spotlight[62].Ls", purple);			// Specular colour of light
-	pSpotlightProgram->SetUniform("spotlight[62].direction", glm::normalize(viewNormalMatrix* glm::vec3(0, 1, 0)));
-	pSpotlightProgram->SetUniform("spotlight[62].exponent", 5.f);
-	pSpotlightProgram->SetUniform("spotlight[62].cutoff", 30.f);
+
 }
 
 void Game::RenderEnvCars(CShaderProgram* pSpotlightProgram, glutil::MatrixStack modelViewMatrixStack, glm::vec3 EnvStarshipPosition, glm::mat4 EnvStarshipOrientation) {
-	//set 1
+
 	modelViewMatrixStack.Push();
 	modelViewMatrixStack.Translate(EnvStarshipPosition + glm::vec3(0, 0, 0));
 	modelViewMatrixStack *= EnvStarshipOrientation;

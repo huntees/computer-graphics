@@ -37,7 +37,7 @@ void CTetrahedron::Create(string filename)
 
 	glm::vec2 tetrahedronTexCoords[3] =
 	{
-		glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f), glm::vec2(0.5f, 1.0f)
+		glm::vec2(0.5f, 1.0f), glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 0.0f)
 	};
 
 	glm::vec3 tetrahedronNormals[4] =
