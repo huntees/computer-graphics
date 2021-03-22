@@ -55,10 +55,9 @@ private:
 	COpenAssetImportMesh* m_pPatrolCar;
 	CHighResolutionTimer *m_pTimer;
 
-	COpenAssetImportMesh* m_pMan;
-
 	void HandleMovement();
 	void HandleEnvShips();
+	void HandlePickups();
 
 	// Some other member variables
 	double m_dt;
@@ -99,6 +98,7 @@ private:
 	float m_currentDistance;
 	float m_cameraSpeed;
 
+	//player ship
 	glm::vec3 m_starshipPosition;
 	glm::vec3 m_starshipFrontLightPosition;
 	glm::vec3 m_starshipBackLightPosition;
@@ -106,18 +106,32 @@ private:
 	float m_starshipStrafe;
 	glm::vec3 m_starship_B;
 
+	const float m_topSpeed = 0.2f;
+
 	bool m_headlightOn;
 
+	float m_hudTime;
+
+	//camera
 	int m_cameraMode;
 	bool m_freeview;
+	bool m_showDebug;
 
+	//track
 	float m_pathDiscardTime;
 	bool m_isDiscardFinish;
 	bool m_showPath;
-	const float m_topSpeed = 0.2f;
+
+	//pick up
+	float m_pickupRotation;
+	bool m_cubePickedUp;
+	bool m_tetraPickedUp;
+	const glm::vec3 m_cubePosition = glm::vec3(414.0f, 351.0f, 1746.0f);
+	const glm::vec3 m_tetraPosition = glm::vec3(368.0f, 340.0f, 1726.0f);
 
 	bool m_fogOn;
 
+	//environment ships
 	float m_EnvCurrentDistance;
 	glm::vec3 m_EnvStarshipPosition;
 	glm::mat4 m_EnvStarshipOrientation;
@@ -136,7 +150,6 @@ private:
 
 	glm::vec3 m_EnvStarshipPosition6;
 	glm::mat4 m_EnvStarshipOrientation6;
-
 
 	//light colours
 	glm::vec3 headlightColour;

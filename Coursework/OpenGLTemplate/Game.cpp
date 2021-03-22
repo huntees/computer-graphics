@@ -63,8 +63,6 @@ Game::Game()
 	
 	m_pStarship = NULL;
 
-	m_pMan = NULL;
-
 	m_dt = 0.0;
 	m_framesPerSecond = 0;
 	m_frameCount = 0;
@@ -107,7 +105,6 @@ Game::~Game()
 	delete m_pFlyingCar;
 	delete m_pPoliceCar;
 	delete m_pPatrolCar;
-	delete m_pMan;
 
 	if (m_pShaderPrograms != NULL) {
 		for (unsigned int i = 0; i < m_pShaderPrograms->size(); i++)
@@ -149,8 +146,6 @@ void Game::Initialise()
 	m_pFlyingCar = new COpenAssetImportMesh;
 	m_pPoliceCar = new COpenAssetImportMesh;
 	m_pPatrolCar = new COpenAssetImportMesh;
-
-	m_pMan = new COpenAssetImportMesh;
 
 	m_pCube = new CCube;
 	m_pTetrahedron = new CTetrahedron;
@@ -256,9 +251,6 @@ void Game::Initialise()
 	m_pFlyingCar->Load("resources\\models\\FlyingCar\\FlyingCar.obj");
 	m_pPoliceCar->Load("resources\\models\\PoliceCar\\policecar.obj");
 	m_pPatrolCar->Load("resources\\models\\PatrolCar\\PatrolCar.obj");
-
-	m_pMan->Load("resources\\models\\Man\\man.obj");
-
 
 	// Create a sphere
 	m_pSphere->Create("resources\\textures\\", "dirtpile01.jpg", 25, 25);  // Texture downloaded from http://www.psionicgames.com/?page_id=26 on 24 Jan 2013
@@ -374,20 +366,19 @@ void Game::Render()
 
 	RenderLights(pSpotlightProgram, viewMatrix, viewNormalMatrix);
 
-
-	//// Render the horse 
-	//modelViewMatrixStack.Push();
-	//	modelViewMatrixStack.Translate(glm::vec3(0.0f, 0.0f, 0.0f));
-	//	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(180.0f));
-	//	modelViewMatrixStack.Scale(2.5f);
-	//	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-	//	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-	//	m_pHorseMesh->Render();
-	//modelViewMatrixStack.Pop();	
+	// Render the horse 
+	modelViewMatrixStack.Push();
+		modelViewMatrixStack.Translate(glm::vec3(287.0f, 52.0f, -926.0f));
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(180.0f));
+		modelViewMatrixStack.Scale(1.f);
+		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+		m_pHorseMesh->Render();
+	modelViewMatrixStack.Pop();	
 	
 	// Render the fighter 
 	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(m_spaceShipPosition);
+		modelViewMatrixStack.Translate(m_spaceShipPosition + glm::vec3(104, 180.0f, -48.0f));
 		modelViewMatrixStack *= m_spaceShipOrientation;
 		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), 0.0f);
 		modelViewMatrixStack.Scale(1.f);
@@ -414,66 +405,38 @@ void Game::Render()
 	RenderEnvCars(pSpotlightProgram, modelViewMatrixStack, m_EnvStarshipPosition5, m_EnvStarshipOrientation5);
 	RenderEnvCars(pSpotlightProgram, modelViewMatrixStack, m_EnvStarshipPosition6, m_EnvStarshipOrientation6);
 
-	// Render the Man
+	if (!m_cubePickedUp) {
+		// Render the cube 
+		modelViewMatrixStack.Push();
+			modelViewMatrixStack.Translate(m_cubePosition);
+			modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(m_pickupRotation));
+			modelViewMatrixStack.Scale(2.f);
+			pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+			pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+			m_pCube->Render();
+		modelViewMatrixStack.Pop();
+	}
+
+	if (!m_tetraPickedUp) {
+		// Render the tetrahedron 
+		modelViewMatrixStack.Push();
+			modelViewMatrixStack.Translate(m_tetraPosition);
+			modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(m_pickupRotation));
+			modelViewMatrixStack.Scale(2.f);
+			pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
+			pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
+			m_pTetrahedron->Render();
+		modelViewMatrixStack.Pop();
+	}
+
+	// Render the Downtown 
 	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(glm::vec3(11.0f, 56.f, -840.0f));
-		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(0.f));
-		modelViewMatrixStack.Scale(0.55f);
+		modelViewMatrixStack.Translate(glm::vec3(120.f, 0.f, 290.0f));
+		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(10.f));
+		modelViewMatrixStack.Scale(1.7f, 3.5f, 1.7f);
 		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
 		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pMan->Render();
-	modelViewMatrixStack.Pop();
-
-	// Render the cube 
-	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(glm::vec3(414.0f, 351.0f, 1746.0f));
-		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(0.0f));
-		modelViewMatrixStack.Scale(2.f);
-		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pCube->Render();
-	modelViewMatrixStack.Pop();
-
-	// Render the tetrahedron 
-	modelViewMatrixStack.Push();
-		modelViewMatrixStack.Translate(glm::vec3(368.0f, 340.0f, 1726.0f));
-		modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(0.0f));
-		modelViewMatrixStack.Scale(2.f);
-		pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-		pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-		m_pTetrahedron->Render();
-	modelViewMatrixStack.Pop();
-
-
-	//// Render the barrel 
-	//modelViewMatrixStack.Push();
-	//	modelViewMatrixStack.Translate(glm::vec3(100.0f, 0.0f, 0.0f));
-	//	modelViewMatrixStack.Scale(5.0f);
-	//	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-	//	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-	//	m_pBarrelMesh->Render();
-	//modelViewMatrixStack.Pop();
-	
-
-	//// Render the sphere
-	//modelViewMatrixStack.Push();
-	//	modelViewMatrixStack.Translate(glm::vec3(0.0f, 2.0f, 150.0f));
-	//	modelViewMatrixStack.Scale(2.0f);
-	//	pMainProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-	//	pMainProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-	//	// To turn off texture mapping and use the sphere colour only (currently white material), uncomment the next line
-	//	//pMainProgram->SetUniform("bUseTexture", false);
-	//	m_pSphere->Render();
-	//modelViewMatrixStack.Pop();
-
-		// Render the Downtown 
-	modelViewMatrixStack.Push();
-	modelViewMatrixStack.Translate(glm::vec3(120.f, 0.f, 290.0f));
-	modelViewMatrixStack.Rotate(glm::vec3(0.0f, 1.0f, 0.0f), glm::radians(10.f));
-	modelViewMatrixStack.Scale(1.7f, 3.5f, 1.7f);
-	pSpotlightProgram->SetUniform("matrices.modelViewMatrix", modelViewMatrixStack.Top());
-	pSpotlightProgram->SetUniform("matrices.normalMatrix", m_pCamera->ComputeNormalMatrix(modelViewMatrixStack.Top()));
-	m_pDowntown->Render();
+		m_pDowntown->Render();
 	modelViewMatrixStack.Pop();
 
 	glDisable(GL_CULL_FACE);
@@ -554,8 +517,6 @@ void Game::Update()
 
 	m_starship_B = cam_B;
 
-	//glm::vec3 up = glm::rotate(glm::vec3(0, 1, 0), m_starshipStrafe, cam_T);
-
 	if (!m_freeview) {
 		if (m_cameraMode == 1) {
 			m_pCamera->Set(p + (5.f * cam_B) + (4.f * cam_T) + (m_starshipStrafe * cam_N), p + (500.0f * cam_T), p_y);
@@ -577,7 +538,17 @@ void Game::Update()
 
 	HandleMovement();
 
+	HandlePickups();
+
 	m_pAudio->Update();
+
+	m_hudTime += (float)m_dt / 1000;
+
+	m_pickupRotation += 0.1f * (float)m_dt;
+	if (m_pickupRotation > 360.f) {
+		m_pickupRotation = 0.f;
+	}
+
 
 	if (!m_showPath) {	
 		if (m_pathDiscardTime < 2.f) {
@@ -597,6 +568,18 @@ void Game::Update()
 	glm::vec3 B = glm::normalize(glm::cross(N, T));
 	
 	m_spaceShipOrientation = glm::mat4(glm::mat3(T, B, N));
+}
+
+void Game::HandlePickups() {
+	if (glm::length(m_starshipPosition - m_cubePosition) < 5.f && !m_cubePickedUp) {
+		m_cubePickedUp = true;
+		m_hudTime -= 2;
+	}
+
+	if (glm::length(m_starshipPosition -m_tetraPosition) < 5.f && !m_tetraPickedUp) {
+		m_tetraPickedUp = true;
+		m_hudTime -= 3;
+	}
 }
 
 void Game::HandleEnvShips() {
@@ -694,20 +677,22 @@ void Game::HandleMovement() {
 	}
 
 	//Movement
-	if (GetKeyState(VK_UP) & 0x80) {
+	if(GetKeyState(VK_UP) & 0x80 || GetKeyState('W') & 0x80) {
+
 		m_cameraSpeed += 0.0001f * m_dt;
 		if (m_cameraSpeed > m_topSpeed) {
 			m_cameraSpeed = m_topSpeed;
 		}
 	}
-	else if (GetKeyState(VK_DOWN) & 0x80) {
+	else if (GetKeyState(VK_DOWN) & 0x80 || GetKeyState('S') & 0x80) {
+
 		m_cameraSpeed -= 0.0001f * m_dt;
 		if (m_cameraSpeed < -m_topSpeed) {
 			m_cameraSpeed = -m_topSpeed;
 		}
 	}
 
-	if (GetKeyState(VK_RIGHT) & 0x80) {
+	if(GetKeyState(VK_RIGHT) & 0x80 || GetKeyState('D') & 0x80) {
 
 		m_starshipStrafe += 0.1f * m_dt;
 
@@ -715,7 +700,7 @@ void Game::HandleMovement() {
 			m_starshipStrafe = m_routeWidth * 0.4;
 		}
 	}
-	else if (GetKeyState(VK_LEFT) & 0x80) {
+	else if (GetKeyState(VK_LEFT) & 0x80 || GetKeyState('A') & 0x80) {
 
 		m_starshipStrafe -= 0.1f * m_dt;
 
@@ -727,8 +712,6 @@ void Game::HandleMovement() {
 
 void Game::DisplayFrameRate()
 {
-
-
 	CShaderProgram *fontProgram = (*m_pShaderPrograms)[1];
 
 	RECT dimensions = m_gameWindow.GetDimensions();
@@ -757,11 +740,14 @@ void Game::DisplayFrameRate()
 		fontProgram->SetUniform("matrices.modelViewMatrix", glm::mat4(1));
 		fontProgram->SetUniform("matrices.projMatrix", m_pCamera->GetOrthographicProjectionMatrix());
 		fontProgram->SetUniform("vColour", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-		m_pFtFont->Render(20, height - 20, 20, "FPS: %d", m_framesPerSecond);
-		m_pFtFont->Render(20, height - 40, 20, "X: %f", m_pCamera->GetPosition().x);
-		m_pFtFont->Render(20, height - 60, 20, "Y: %f", m_pCamera->GetPosition().y);
-		m_pFtFont->Render(20, height - 80, 20, "Z: %f", m_pCamera->GetPosition().z);
-		m_pFtFont->Render(100, height * 0.1f, 20, "KM/H: %.0f", m_cameraSpeed * 800);
+		if (m_showDebug) {
+			m_pFtFont->Render(20, height - 20, 20, "FPS: %d", m_framesPerSecond);
+			m_pFtFont->Render(20, height - 40, 20, "X: %f", m_pCamera->GetPosition().x);
+			m_pFtFont->Render(20, height - 60, 20, "Y: %f", m_pCamera->GetPosition().y);
+			m_pFtFont->Render(20, height - 80, 20, "Z: %f", m_pCamera->GetPosition().z);
+		}
+		m_pFtFont->Render(100, height * 0.1f, 20, "KM/H: %.0f", abs(m_cameraSpeed * 800));
+		m_pFtFont->Render(width * 0.47f, height * 0.95f, 20, "Time: %.0fs", m_hudTime);
 		m_pFtFont->Render(width * 0.48f, height * 0.9f, 20, "Lap: %d", m_pCatmullRom->CurrentLap(m_currentDistance));
 	}
 }
@@ -879,6 +865,10 @@ LRESULT Game::ProcessEvents(HWND window,UINT message, WPARAM w_param, LPARAM l_p
 
 		case VK_F6:
 			m_fogOn = !m_fogOn;
+			break;
+
+		case VK_F7:
+			m_showDebug = !m_showDebug;
 			break;
 
 		case 'V':

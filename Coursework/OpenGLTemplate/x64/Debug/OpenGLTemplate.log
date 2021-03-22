@@ -1,16 +1,18 @@
 ﻿  Game.cpp
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(542,43): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(603,38): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(682,34): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(689,34): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(698,34): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(704,34): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(712,34): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(715,36): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(720,34): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(723,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(764,33): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(765,43): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(765,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(935,21): warning C4244: 'return': conversion from 'WPARAM' to 'int', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(505,43): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(586,38): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(665,34): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(672,34): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(682,34): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(689,34): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(697,34): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(700,36): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(705,34): warning C4244: '-=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(708,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(749,33): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(750,43): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(750,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(751,43): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(751,27): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\Huntees\Desktop\computer-graphics\Coursework\OpenGLTemplate\Game.cpp(925,21): warning C4244: 'return': conversion from 'WPARAM' to 'int', possible loss of data
   OpenGLTemplate.vcxproj -> C:\Users\Huntees\Desktop\computer-graphics\Coursework\x64\Debug\OpenGLTemplate.exe
